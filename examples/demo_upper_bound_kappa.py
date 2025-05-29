@@ -1,6 +1,6 @@
 """
 In this example, we show how to lower the upper bound assuming the restriction
-that no cluster is larger than kappa, where kappa > 2. 
+that no cluster is smaller than kappa, where kappa > 2. 
 """
 
 import numpy as np

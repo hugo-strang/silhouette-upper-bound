@@ -1,24 +1,13 @@
 
 import numpy as np
-from .utils import _row_f
+from .utils import _row_f, _check_dissimilarity_matrix
 
-def upper_bound_samples(D: np.ndarray, kappa: int = 2, tol=1e-15) -> np.ndarray:
+def upper_bound_samples(D: np.ndarray, kappa: int = 2) -> np.ndarray:
     """
     ...
     """
 
-    # Check that D is a valid dissimilarity matrix
-    if D.ndim != 2 or D.shape[0] != D.shape[1]:
-        raise ValueError("Matrix must be square.")
-    
-    if not np.all(D >= -tol):
-        raise ValueError("Matrix must be non-negative.")
-    
-    if not np.allclose(np.diag(D), 0, atol=tol):
-        raise ValueError("Matrix must have zero diagonal.")
-    
-    if not np.allclose(D, D.T, atol=tol):
-        raise ValueError("Matrix must be symmetric.")
+    _check_dissimilarity_matrix(D=D)
     
     # Remove diagonal from distance matrix and then sort
     D_hat = np.sort(D[~np.eye(D.shape[0],dtype=bool)].reshape(D.shape[0],-1))
@@ -35,12 +24,12 @@ def upper_bound_samples(D: np.ndarray, kappa: int = 2, tol=1e-15) -> np.ndarray:
 
     return bounds
 
-def upper_bound(D: np.ndarray, kappa: int = 2, tol=1e-15) -> float:
+def upper_bound(D: np.ndarray, kappa: int = 2) -> float:
     """
     ...
     """
 
-    point_bounds = upper_bound_samples(D=D, kappa=kappa, tol=tol)
+    point_bounds = upper_bound_samples(D=D, kappa=kappa)
 
     return np.mean(point_bounds)
 

@@ -1,3 +1,8 @@
+"""
+In this example, we cluster a synthetic dataset using KMeans. 
+We then plot the Silhouette score of each sample and compare it to its upper bound. 
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 from silhouette_upper_bound import upper_bound, upper_bound_samples

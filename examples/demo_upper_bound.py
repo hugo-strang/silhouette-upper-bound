@@ -1,5 +1,5 @@
 """
-In this example, we ...
+In this example, we show how to use the standard upper bound on a synthetic dataset. 
 """
 
 from silhouette_upper_bound import upper_bound
