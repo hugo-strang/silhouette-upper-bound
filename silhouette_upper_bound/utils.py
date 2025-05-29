@@ -20,4 +20,4 @@ def _row_f(row: np.ndarray, kappa: int, n: int) -> float:
         if q_candidate < q:
             q = q_candidate
     
-    return q 
+    return 1 - q 

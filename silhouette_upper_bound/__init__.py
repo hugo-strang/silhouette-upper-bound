@@ -42,6 +42,6 @@ def upper_bound(D: np.ndarray, kappa: int = 2, tol=1e-15) -> float:
 
     point_bounds = upper_bound_samples(D=D, kappa=kappa, tol=tol)
 
-    return 1 - np.mean(point_bounds)
+    return np.mean(point_bounds)
 
 
