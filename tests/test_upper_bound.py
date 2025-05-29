@@ -40,7 +40,7 @@ def test_basic():
     assert np.abs(upper_bound(d3) - np.mean(1 - d3f)) < 1e-15
 
 
-@pytest.mark.parametrize("n_samples", [100, 200, 300])
+@pytest.mark.parametrize("n_samples", [100, 200, 300, 400, 500])
 @pytest.mark.parametrize("n_features", [10, 15, 20])
 @pytest.mark.parametrize("centers", [3, 6, 9])
 @pytest.mark.parametrize("cluster_std", [1.0, 2.0, 3.0])
