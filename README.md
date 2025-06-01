@@ -41,9 +41,6 @@ if __name__ == '__main__':
     D = (A + A.T) / 2
     np.fill_diagonal(D, 0)
 
-    # dummy clustering
-    labels = np.random.choice([0, 1, 2], size=100)
-
     # ASW upper bound
     ub = upper_bound(D)
 

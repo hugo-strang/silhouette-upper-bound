@@ -29,8 +29,8 @@ def upper_bound_samples(D: np.ndarray, kappa: int = 2) -> np.ndarray:
 
     Returns
     -------
-    float
-        An upper bound of the ASW.
+    np.ndarray
+        An array where the i:th element is an upper bound of the Silhouette coefficient s(i).
 
     References
     ----------
