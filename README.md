@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
 ## Benchmarks
 
-We evaluate the performance of the upper bound using synthetic datasets generated with `scikit-learn`’s `make_blobs()` function. Each dataset is identified by a label of the form `n_samples`-`n_features`-`centers`-`cluster_std`, which corresponds to the parameters used in the data generation.
+We evaluate the performance of the upper bound using synthetic datasets generated with `scikit-learn`’s `make_blobs()` [function](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_blobs.html). Each dataset is identified by a label of the form `n_samples`-`n_features`-`centers`-`cluster_std`, which corresponds to the parameters used in the data generation.
 
 The code that generates the table below can be found in 
 [`examples/benchmarks.py`](./examples/benchmarks.py).
