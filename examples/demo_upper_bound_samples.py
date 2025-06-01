@@ -1,6 +1,6 @@
 """
-In this example, we cluster a synthetic dataset using KMeans. 
-We then plot the Silhouette score of each sample and compare it to its upper bound. 
+In this example, we cluster a synthetic dataset using KMeans.
+We then plot the Silhouette score of each sample and compare it to its upper bound.
 """
 
 import matplotlib.pyplot as plt
@@ -10,27 +10,30 @@ from sklearn.cluster import KMeans
 from sklearn.datasets import make_blobs
 from sklearn.metrics import silhouette_score, silhouette_samples, pairwise_distances
 
+
 def main():
     # Generate synthetic data
-    X, _ = make_blobs(n_samples=500, n_features=16, centers=3, cluster_std=2, random_state=42)
+    X, _ = make_blobs(
+        n_samples=500, n_features=16, centers=3, cluster_std=2, random_state=42
+    )
     D = pairwise_distances(X)
-    
+
     # Cluster with KMeans
     kmeans = KMeans(n_clusters=3, random_state=42, n_init="auto")
     labels = kmeans.fit_predict(X)
-    
+
     # Overall silhouette score
     score = silhouette_score(X, labels)
 
     # Upper bound
     ub = upper_bound(D)
 
-    # Upper bound for each sample 
+    # Upper bound for each sample
     ub_samples = upper_bound_samples(D)
-    
+
     # Compute silhouette values for each sample
     sample_silhouette_values = silhouette_samples(X, labels)
-    
+
     fig, ax = plt.subplots(figsize=(8, 5))
 
     # Silhouette plot setup
@@ -46,9 +49,9 @@ def main():
 
         # Get sorted order of silhouette values
         sorted_order = np.argsort(cluster_silhouettes)
-        
+
         sorted_silhouettes = cluster_silhouettes[sorted_order]
-        sorted_ub_values = cluster_ub_values[sorted_order]    
+        sorted_ub_values = cluster_ub_values[sorted_order]
 
         size_cluster_i = sorted_silhouettes.shape[0]
         y_upper = y_lower + size_cluster_i
@@ -56,14 +59,24 @@ def main():
         color = plt.cm.viridis(float(i) / 3)
 
         # Cluster Silhouette scores
-        ax.fill_betweenx(np.arange(y_lower, y_upper),
-                        0, sorted_silhouettes,
-                        facecolor=color, edgecolor=color, alpha=0.7)
-        
+        ax.fill_betweenx(
+            np.arange(y_lower, y_upper),
+            0,
+            sorted_silhouettes,
+            facecolor=color,
+            edgecolor=color,
+            alpha=0.7,
+        )
+
         # Cluster Silhouette bounds
-        ax.fill_betweenx(np.arange(y_lower, y_upper),
-                        0, sorted_ub_values,
-                        facecolor=color, edgecolor=color, alpha=0.2)
+        ax.fill_betweenx(
+            np.arange(y_lower, y_upper),
+            0,
+            sorted_ub_values,
+            facecolor=color,
+            edgecolor=color,
+            alpha=0.2,
+        )
 
         # Label cluster number
         ax.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
@@ -80,6 +93,7 @@ def main():
 
     plt.tight_layout()
     plt.show()
+
 
 if __name__ == "__main__":
     main()

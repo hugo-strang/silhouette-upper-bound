@@ -22,6 +22,7 @@ homepage = "https://github.com/hugo-strang/silhouette-upper-bound"
 [project.optional-dependencies]
 tests = ["pytest", "scikit-learn"]
 examples = ["matplotlib"]
+dev = ["black"]
 
 [build-system]
 requires = ["hatchling >= 1.26"]

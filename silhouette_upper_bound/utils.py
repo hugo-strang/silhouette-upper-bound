@@ -7,23 +7,23 @@ def _check_dissimilarity_matrix(D: np.ndarray, tol: float = 1e-15):
     # Check that D is a valid dissimilarity matrix
     if D.ndim != 2 or D.shape[0] != D.shape[1]:
         raise ValueError("Matrix must be square.")
-    
+
     if not np.all(D >= -tol):
         raise ValueError("Matrix must be non-negative.")
-    
+
     if not np.allclose(np.diag(D), 0, atol=tol):
         raise ValueError("Matrix must have zero diagonal.")
-    
+
     if not np.allclose(D, D.T, atol=tol):
         raise ValueError("Matrix must be symmetric.")
 
 
 @njit
 def _row_f(row: np.ndarray, kappa: int, n: int) -> float:
-    
-    x = np.sum(row[:kappa - 1])
-        
-    y = np.sum(row[kappa - 1:])
+
+    x = np.sum(row[: kappa - 1])
+
+    y = np.sum(row[kappa - 1 :])
 
     q = (x / (kappa - 1)) / (y / (n - kappa))
 
