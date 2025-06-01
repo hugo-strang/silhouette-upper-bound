@@ -7,7 +7,7 @@ authors = [
 description = "An upper bound of the Average Silhouette Width"
 readme = "README.md"
 dependencies = [
-  "numpy>=1.22.0",
+  "numpy>=1.22.0", "numba>=0.61.2"
 ]
 requires-python = ">=3.9"
 classifiers = [
@@ -22,6 +22,7 @@ homepage = "https://github.com/hugo-strang/silhouette-upper-bound"
 [project.optional-dependencies]
 tests = ["pytest", "scikit-learn"]
 examples = ["matplotlib"]
+dev = ["black"]
 
 [build-system]
 requires = ["hatchling >= 1.26"]
