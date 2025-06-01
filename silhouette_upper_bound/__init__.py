@@ -32,16 +32,23 @@ def upper_bound(D: np.ndarray, kappa: int = 2) -> float:
     """
     Compute an upper bound of the Average Silhouette Width (ASW). The upper bound ranges from 0 to 1.
     
-    When C is a clustering corresponding to the dissimilarity matrix D, we denote its Silhouette score by ASW(C,D).
+    Notation:
+        - D: Dissimilarity matrix corresponding to dataset.
+        - C: Clustering of data points from D.
+        - s(i): Silhouette coefficient of the i:th data point.
+        - ASW(C,D): Mean s(i) over all data points, given the clustering C. 
+
     Let C* denote a globally Silhouette-optimal clustering. To construct an upper bound of ASW(C*,D), 
-    we use the fact that, in C*, each i belongs to a cluster of size 
-    2 <= delta <= n-2. The average distance between $i$ and every other data point in the same cluster 
-    is not smaller than the average distance between $i$ and the $\Delta-1$ points closest to $i$. Furthermore,
-    the average distance between $i$ and the $n-\Delta$ points farthest from $i$ is not smaller than 
-    the average distance between $i$ and every point in the neighboring cluster closest to $i$.
-    By combining these two observations, we construct a value guaranteed to be greater than or equal to $s(i,\mcC_K,D)$.
-    
-    Then ASW(C*,D) <= 1 - 
+    we use the fact that, in C*, each data point i belongs to a cluster of size 
+    2 <= Delta <= n-2. The average distance between i and every other data point in the same cluster 
+    is not smaller than the average distance between i and the Delta - 1 points closest to i - call this 
+    average x(Delta). Furthermore,
+    the average distance between i and the n - Delta points farthest from i - call this y(Delta) - is not smaller than 
+    the average distance between i and every point in the neighboring cluster closest to i.
+    By combining these two observations, we construct a value guaranteed to be greater than or equal to s(i),
+    namely UB(i,D) := 1 - min(x(Delta) / y(Delta)), where the minimum is taken over all possible Delta-values.
+    The overall upper bound is obtained by taking the mean of these values. To summarize, 
+    we have ASW(C*,D) <= mean(UB(i,D)).
 
     Parameters
     ----------

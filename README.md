@@ -26,3 +26,26 @@ pip install silhouette-upper-bound
 
 To help you get started, we provide example scripts demonstrating common use cases.
 You can find these in the [`examples/`](./examples) folder.
+
+## Quickstart
+```python
+import numpy as np
+from silhouette_upper_bound import upper_bound
+
+if __name__ == '__main__':
+
+    np.random.seed(42)
+
+    # dummy data
+    A = np.random.rand(100, 100)
+    D = (A + A.T) / 2
+    np.fill_diagonal(D, 0)
+
+    # dummy clustering
+    labels = np.random.choice([0, 1, 2], size=100)
+
+    # ASW upper bound
+    ub = upper_bound(D)
+
+    print(f"There exist no clustering of the data points of D that has a larger Silhouette score than {ub}.")
+```
