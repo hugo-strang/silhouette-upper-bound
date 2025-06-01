@@ -49,3 +49,15 @@ if __name__ == '__main__':
 
     print(f"There exist no clustering of the data points of D that has a larger Silhouette score than {ub}.")
 ```
+
+## Contribution
+
+Contributions are welcome! If you have suggestions for improvements, bug reports, or new features, feel free to open an issue or submit a pull request.
+
+To contribute:
+
+1. Fork the repository.
+2. Create a new branch for your feature or fix.
+3. Submit a pull request.
+
+Thank you for helping improve this project!
