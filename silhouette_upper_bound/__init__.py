@@ -46,7 +46,7 @@ def upper_bound_samples(D: np.ndarray, kappa: int = 2) -> np.ndarray:
     if n < 4:
         raise ValueError("Matrix must be at least of size 4x4.")
 
-    if kappa < 1 or kappa > n - 2:
+    if kappa < 2 or kappa > n - 2:
         raise ValueError("The parameter kappa is out of range.")
 
     # Compute bounds
