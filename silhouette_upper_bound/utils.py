@@ -21,11 +21,14 @@ def _check_dissimilarity_matrix(D: np.ndarray, tol: float = 1e-15):
 @njit
 def _row_f(row: np.ndarray, kappa: int, n: int) -> float:
 
-    x = np.sum(row[: kappa - 1])
-
     y = np.sum(row[kappa - 1 :])
-
-    q = (x / (kappa - 1)) / (y / (n - kappa))
+    # Initialize q
+    if kappa == 1:
+        x = 0
+        q = 1
+    else:
+        x = np.sum(row[: kappa - 1])
+        q = (x / (kappa - 1)) / (y / (n - kappa))
 
     for delta in range(kappa + 1, n - kappa + 1):
         d_to_move = row[delta - 2]
