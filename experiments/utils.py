@@ -24,7 +24,16 @@ def get_data(dataset: str, transpose = False) -> np.ndarray:
     
     print(f"Data shape: {data.shape}")
 
-    return data.to_numpy()
+    data = data.to_numpy()
+
+    # Removing zero-vectors
+    non_zero_rows = ~np.all(data == 0, axis=1)
+
+    data = data[non_zero_rows]
+
+    print(f"Data shape (zeros removed): {data.shape}")
+
+    return data
 
 
 def _optim_iteration(data, cluster_labels, metric, best_solution):
