@@ -81,7 +81,12 @@ def kmeans_optimized(data, k_range = range(2,31), random_state = 42, n_init = "a
 
         best_solution = _optim_iteration(data=data, cluster_labels=cluster_labels, metric='euclidean', best_solution=best_solution)
     
-    print(f"best score: {best_solution['best_score']} | n clusters: {len(Counter(best_solution['best_labels']))}")
+    n_clusters = len(Counter(best_solution['best_labels']))
+    if n_clusters <= 6:
+        clusters = {int(k): v for k, v in Counter(best_solution['best_labels']).items()}
+        print(f"best score: {best_solution['best_score']} | n clusters: {n_clusters} | clusters: {sorted(clusters.items())}")
+    else:
+        print(f"best score: {best_solution['best_score']} | n clusters: {n_clusters}")
 
     return best_solution
 
