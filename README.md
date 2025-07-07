@@ -25,7 +25,7 @@ pip install silhouette-upper-bound
 ## Examples
 
 To help you get started, we provide example scripts demonstrating common use cases.
-You can find these in the [`examples/`](./examples) folder.
+You can find these in the [`demos/`](./demos) folder.
 
 ## Quickstart
 ```python
@@ -51,15 +51,15 @@ if __name__ == '__main__':
 
 We evaluate the performance of the upper bound using synthetic datasets generated with `scikit-learn`’s `make_blobs()` [function](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_blobs.html). Each dataset is identified by a label of the form `n_samples`-`n_features`-`centers`-`cluster_std`, which corresponds to the parameters used in the data generation.
 
-The code that generates the table below can be found in 
-[`examples/benchmarks.py`](./examples/benchmarks.py).
+The code that generates the results below can be found in 
+[`experiments/table1.py`](./experiments/table1.py).
 
-| Dataset | KMeans ASW | ASW upper bound | Diff. |
-| --- | --- | --- | --- |
-| 400-64-5-6 | 0.249 | 0.376 | 0.127 |
-| 400-64-2-2 | 0.673 | 0.673 | 0.0 |
-| 400-128-7-3 | 0.522 | 0.566 | 0.044 |
-| 1000-161-2-13 | 0.084 | 0.182 | 0.098 |
+| Dataset | KMeans ASW | ASW upper bound | 
+| --- | --- | --- | 
+| 400-64-5-6 | 0.249 | 0.376 | 
+| 400-64-2-2 | 0.673 | 0.673 | 
+| 400-128-7-3 | 0.522 | 0.566 | 
+| 1000-161-2-13 | 0.084 | 0.182 | 
 
 ## Contribution
 
