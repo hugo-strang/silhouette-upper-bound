@@ -22,12 +22,14 @@ def main():
 
     # Overall silhouette score
     score = silhouette_score(X, labels)
-    print(f"KMeans Silhouette score: {score:.3f} | Smallest cluster size: {min_cluster_size}")
+    print(
+        f"KMeans Silhouette score: {score:.3f} | Smallest cluster size: {min_cluster_size}"
+    )
 
     print(f"Silhouette (unrestricted) upper bound: {upper_bound(D):.3f}")
 
     # Upper bound with kappa > 1
-    
+
     print(
         f"Silhouette upper bound (given that we don't allow cluster sizes smaller than {min_cluster_size}): {upper_bound(D, kappa=min_cluster_size):.3f}"
     )

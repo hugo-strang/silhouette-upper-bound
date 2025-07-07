@@ -9,8 +9,7 @@ from tqdm import tqdm
 from collections import Counter
 
 
-
-def get_data(dataset: str, transpose = False) -> np.ndarray:
+def get_data(dataset: str, transpose=False) -> np.ndarray:
     path = f"data/{dataset}/data.csv"
 
     print(f"==== Running dataset: {dataset} ====\n")
@@ -18,10 +17,10 @@ def get_data(dataset: str, transpose = False) -> np.ndarray:
     df = pd.read_csv(path)
 
     data = df.select_dtypes(include="number")
-   
+
     if transpose:
         data = data.transpose()
-    
+
     print(f"Data shape: {data.shape}")
 
     data = data.to_numpy()
@@ -45,18 +44,18 @@ def _optim_iteration(data, cluster_labels, metric, best_solution):
 
     silh_score = np.mean(silh_samples)
 
-    if silh_score > best_solution['best_score']:
-        
-        best_solution['best_score'] = silh_score
-        best_solution['best_scores'] = silh_samples
-        best_solution['best_labels'] = cluster_labels
-    
+    if silh_score > best_solution["best_score"]:
+
+        best_solution["best_score"] = silh_score
+        best_solution["best_scores"] = silh_samples
+        best_solution["best_labels"] = cluster_labels
+
     return best_solution
 
 
-def kmeans_optimized(data, k_range = range(2,31), random_state = 42, n_init = "auto"):
+def kmeans_optimized(data, k_range=range(2, 31), random_state=42, n_init="auto"):
     """
-    
+
     Parameters
     ----------
         data: np.ndarray
@@ -66,10 +65,10 @@ def kmeans_optimized(data, k_range = range(2,31), random_state = 42, n_init = "a
     """
 
     best_solution = {
-            'best_score': 0,  # ASW 
-            'best_scores': None,  # Silhouette samples 
-            'best_labels': None,  # Cluster labels 
-        }
+        "best_score": 0,  # ASW
+        "best_scores": None,  # Silhouette samples
+        "best_labels": None,  # Cluster labels
+    }
 
     print(f"Kmeans optimization")
 
@@ -77,25 +76,35 @@ def kmeans_optimized(data, k_range = range(2,31), random_state = 42, n_init = "a
 
         kmeans = KMeans(n_clusters=k, random_state=random_state, n_init=n_init)
 
-        cluster_labels = kmeans.fit_predict(data) + 1  # 1:indexed 
+        cluster_labels = kmeans.fit_predict(data) + 1  # 1:indexed
 
-        best_solution = _optim_iteration(data=data, cluster_labels=cluster_labels, metric='euclidean', best_solution=best_solution)
-    
-    n_clusters = len(Counter(best_solution['best_labels']))
+        best_solution = _optim_iteration(
+            data=data,
+            cluster_labels=cluster_labels,
+            metric="euclidean",
+            best_solution=best_solution,
+        )
+
+    n_clusters = len(Counter(best_solution["best_labels"]))
     if n_clusters <= 6:
-        clusters = {int(k): v for k, v in Counter(best_solution['best_labels']).items()}
-        print(f"best score: {best_solution['best_score']} | n clusters: {n_clusters} | clusters: {sorted(clusters.items())}")
+        clusters = {int(k): v for k, v in Counter(best_solution["best_labels"]).items()}
+        print(
+            f"best score: {best_solution['best_score']} | n clusters: {n_clusters} | clusters: {sorted(clusters.items())}"
+        )
     else:
         print(f"best score: {best_solution['best_score']} | n clusters: {n_clusters}")
 
     return best_solution
 
-def hierarchical_optimized(data: np.ndarray, metric: str, method='single', t_range=range(2, 31), TOL = 1e-10):
+
+def hierarchical_optimized(
+    data: np.ndarray, metric: str, method="single", t_range=range(2, 31), TOL=1e-10
+):
     """
-    
+
     Parameters
     ----------
-        D: np.ndarray   
+        D: np.ndarray
             distance matrix of shape (n_samples, n_features)
         metric: str
             distance metric, e.g. "euclidean" or "cosine"
@@ -108,25 +117,38 @@ def hierarchical_optimized(data: np.ndarray, metric: str, method='single', t_ran
 
     D = pairwise_distances(data, metric=metric)  # convert data to dissimilarity matrix
 
-    assert np.linalg.norm(D - D.T, ord='fro') < TOL, f"Matrix X is not symmetric!"
-    assert np.abs(np.diag(D)).max() < TOL, f"Diagonal entries of X are not close to zero!"
+    assert np.linalg.norm(D - D.T, ord="fro") < TOL, f"Matrix X is not symmetric!"
+    assert (
+        np.abs(np.diag(D)).max() < TOL
+    ), f"Diagonal entries of X are not close to zero!"
 
-    vector_D = squareform(D, checks=False)  # convert dissimilarity matrix to vector-form distance vector
+    vector_D = squareform(
+        D, checks=False
+    )  # convert dissimilarity matrix to vector-form distance vector
 
     best_solution = {
-            'best_score': 0,  # ASW 
-            'best_scores': None,  # Silhouette samples 
-            'best_labels': None,  # Cluster labels 
-        }
-    
+        "best_score": 0,  # ASW
+        "best_scores": None,  # Silhouette samples
+        "best_labels": None,  # Cluster labels
+    }
+
     print(f"{method} optimization")
     for t in tqdm(t_range):
 
-        cluster_labels = fcluster(linkage(vector_D, method=method), t=t, criterion='maxclust')
+        cluster_labels = fcluster(
+            linkage(vector_D, method=method), t=t, criterion="maxclust"
+        )
 
-        best_solution = _optim_iteration(data=D, cluster_labels=cluster_labels, metric='precomputed', best_solution=best_solution)
+        best_solution = _optim_iteration(
+            data=D,
+            cluster_labels=cluster_labels,
+            metric="precomputed",
+            best_solution=best_solution,
+        )
 
-    print(f"best score: {best_solution['best_score']} | n clusters: {len(Counter(best_solution['best_labels']))}")
+    print(
+        f"best score: {best_solution['best_score']} | n clusters: {len(Counter(best_solution['best_labels']))}"
+    )
 
     return best_solution
 
@@ -145,5 +167,4 @@ def get_upper_bound(data: np.ndarray, metric: str) -> dict:
 
     print(f"UB: {ub}")
 
-    return {'ub': ub, 'min': ubs_min, 'max': ubs_max, 'samples': ubs}
-
+    return {"ub": ub, "min": ubs_min, "max": ubs_max, "samples": ubs}
