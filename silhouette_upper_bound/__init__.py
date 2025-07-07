@@ -2,7 +2,7 @@ import numpy as np
 from .utils import _row_f, _check_dissimilarity_matrix
 
 
-def upper_bound_samples(D: np.ndarray, kappa: int = 2) -> np.ndarray:
+def upper_bound_samples(D: np.ndarray, kappa: int = 1) -> np.ndarray:
     """
     Compute an upper bound of the Silhouette coefficient for each sample.
 
@@ -46,7 +46,7 @@ def upper_bound_samples(D: np.ndarray, kappa: int = 2) -> np.ndarray:
     if n < 4:
         raise ValueError("Matrix must be at least of size 4x4.")
 
-    if kappa < 1 or kappa > n - 2:
+    if kappa < 1 or kappa > n - 1:
         raise ValueError("The parameter kappa is out of range.")
 
     # Compute bounds
@@ -57,7 +57,7 @@ def upper_bound_samples(D: np.ndarray, kappa: int = 2) -> np.ndarray:
     return bounds
 
 
-def upper_bound(D: np.ndarray, kappa: int = 2) -> float:
+def upper_bound(D: np.ndarray, kappa: int = 1) -> float:
     """
     Compute an upper bound of the Average Silhouette Width (ASW). The upper bound ranges from 0 to 1.
 

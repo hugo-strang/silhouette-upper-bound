@@ -89,10 +89,10 @@ def test_blobs(n_samples, n_features, centers, cluster_std):
     assert np.all(0 <= ub_samples) and np.all(ub_samples <= 1)
     assert np.all(ub_samples - score_samples >= -1e-15)
 
-    # Upper bound with kappa > 2
+    # Upper bound with kappa > 1
     min_cluster_size = np.bincount(labels).min()
 
-    if min_cluster_size > 2:
+    if min_cluster_size > 1:
 
         ub_kappa = upper_bound(D, kappa=min_cluster_size)
 
