@@ -47,7 +47,7 @@ if __name__ == '__main__':
     print(f"There is no clustering of the data points of D that has a higher Silhouette score than {ub}.")
 ```
 
-## Benchmarks
+## Experimental results
 
 We evaluate the performance of the upper bound using synthetic datasets generated with `scikit-learn`’s `make_blobs()` [function](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_blobs.html). Each dataset is identified by a label of the form `n_samples`-`n_features`-`centers`-`cluster_std`, which corresponds to the parameters used in the data generation.
 
@@ -60,6 +60,8 @@ The code that generates the results below can be found in
 | 400-64-2-2 | 0.673 | 0.673 | 
 | 400-128-7-3 | 0.522 | 0.566 | 
 | 1000-161-2-13 | 0.084 | 0.182 | 
+
+Note that the upper bound confirms global optimality for KMeans on dataset 400-64-2-2.
 
 ## Contribution
 
