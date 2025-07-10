@@ -54,12 +54,12 @@ We evaluate the performance of the upper bound using synthetic datasets generate
 The code that generates the results below can be found in 
 [`experiments/table1.py`](./experiments/table1.py).
 
-| Dataset | KMeans ASW | ASW upper bound | 
-| --- | --- | --- | 
-| 400-64-5-6 | 0.249 | 0.376 | 
-| 400-64-2-2 | 0.673 | 0.673 | 
-| 400-128-7-3 | 0.522 | 0.566 | 
-| 1000-161-2-13 | 0.084 | 0.182 | 
+| Dataset | KMeans ASW | ASW upper bound | Worst-case relative error |
+| --- | --- | --- | --- |
+| 400-64-5-6 | 0.249 | 0.376 | 0.38 |
+| 400-64-2-2 | 0.673 | 0.673 | .00 |
+| 400-128-7-3 | 0.522 | 0.566 | 0.08 |
+| 1000-161-2-13 | 0.084 | 0.182 | 0.54 |
 
 Note that the upper bound confirms global optimality for KMeans on dataset 400-64-2-2.
 
