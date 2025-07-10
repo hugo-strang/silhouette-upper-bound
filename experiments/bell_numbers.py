@@ -11,10 +11,6 @@ bell_numbers = [1,1,2,5,15,52,203,877,4140,21147,115975,678570,
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-from matplotlib.ticker import LogFormatterExponent
-
-# Example bell_numbers for demonstration
-# bell_numbers = [1, 1, 2, 5, 15, 52, 203, 877, 4140]
 
 # Create DataFrame
 df = pd.DataFrame({
@@ -43,19 +39,12 @@ sns.scatterplot(
 # Log scale
 ax.set_yscale("log")
 
-# Format y-axis ticks in 10^x notation
-#ax.yaxis.set_major_formatter(LogFormatterExponent(base=10))
 ax.tick_params(axis='y', which='major')
 
-# Remove top and right spines
 sns.despine(ax=ax)
 
-# Set labels and title
 ax.set_xlabel(r"$n$", fontsize=14, labelpad=10)
 ax.set_ylabel(r"$B_n$", fontsize=14, labelpad=10)
-
-plt.tight_layout()
-#plt.show()
 
 plt.tight_layout()
 plt.savefig("bell_numbers.pdf")
