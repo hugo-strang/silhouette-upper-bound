@@ -2,8 +2,8 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_samples, silhouette_score
 from scipy.io import arff
 from scipy.spatial.distance import pdist, squareform
 from silhouette_upper_bound import upper_bound
@@ -13,7 +13,7 @@ from collections import Counter
 # -------------------------------------------------
 # 2. Load datasets
 # -------------------------------------------------
-def load_arff_as_distance_matrix(path, metric="euclidean"):
+def load_arff_as_distance_matrix(path, metric="euclidean", scale=False):
     # Load
     data, meta = arff.loadarff(path)
     df = pd.DataFrame(data)
@@ -52,20 +52,13 @@ def load_arff_as_distance_matrix(path, metric="euclidean"):
     inds = np.where(np.isnan(X))
     X[inds] = np.take(col_means, inds[1])
 
+    if scale:
+        X = StandardScaler().fit_transform(X)
+
     # Distance matrix
     D = squareform(pdist(X, metric=metric))
 
     return D, X, y
-
-
-def preprocess_for_plot(X):
-    """Standardize and reduce to 2D (for visualization only)"""
-    X_scaled = StandardScaler().fit_transform(X)
-    if X_scaled.shape[1] > 2:
-        X_plot = PCA(n_components=2).fit_transform(X_scaled)
-    else:
-        X_plot = X_scaled
-    return X_plot
 
 
 # -------------------------------------------------
@@ -73,29 +66,31 @@ def preprocess_for_plot(X):
 # -------------------------------------------------
 # Example: assuming you’ve cloned the GitHub repo locally
 # e.g. `git clone https://github.com/deric/clustering-benchmark.git`
-dataset_dir = "data/clustering_benchmarks/use"
+dataset_dir = "data/clustering_benchmarks/real_world"
 
 datasets = []
 for fname in os.listdir(dataset_dir):
     if fname.endswith(".arff"):
         try:
             path = os.path.join(dataset_dir, fname)
-            D, X, y = load_arff_as_distance_matrix(path)
+            D, X, y = load_arff_as_distance_matrix(path, scale=True)
             n_samples, n_features = X.shape
             class_counts = Counter(y)
-            kappa = int(min(class_counts.values()))
-            #kappa = 1
+            kappa_r = int(min(class_counts.values()))
+            ub_asw_r = upper_bound(D=D, kappa=kappa_r)
+            kappa = 1
             ub_asw = upper_bound(D=D, kappa=kappa)
-            X_plot = preprocess_for_plot(X)
             datasets.append({
-                "name": fname.replace(".arff", "")+f" ({n_samples, n_features})\n kappa = {kappa}",
-                "X_plot": X_plot,
+                "name": fname.replace(".arff", "")+f" {n_samples, n_features}",
+                "X_plot": X,
                 "y": y,
-                "ub_asw": ub_asw
+                "kappa": kappa,
+                "ub_asw": ub_asw,
+                "kappa_r": kappa_r,
+                "ub_asw_r": ub_asw_r
             })
         except:
             continue
-
 
 
 datasets = datasets[:20]  # pick a subset
@@ -103,25 +98,49 @@ datasets = datasets[:20]  # pick a subset
 print("Datasets processed!")
 
 # -------------------------------------------------
-# 4. Plot grid
+# 4. Plot grid with silhouette plots
 # -------------------------------------------------
 n = len(datasets)
-rows, cols = 5, 4
+rows, cols = 3, 4
 fig, axes = plt.subplots(rows, cols, figsize=(20, 20))
 axes = axes.flatten()
 
 for i, dataset in enumerate(datasets):
-    X_plot, y, ub_asw = dataset["X_plot"], dataset["y"], dataset["ub_asw"]
-    unique_labels, numeric_labels = np.unique(y, return_inverse=True)
+    X_plot, y, ub_asw, kappa, ub_asw_r, kappa_r = dataset["X_plot"], dataset["y"], dataset["ub_asw"], dataset["kappa"], dataset["ub_asw_r"], dataset["kappa_r"]
     ax = axes[i]
-    sc = ax.scatter(X_plot[:,0], X_plot[:,1], c=numeric_labels, s=10, cmap="tab10")
-    ax.set_title(f"{dataset['name']} (UB-ASW={ub_asw:.2f})")
-    ax.set_xticks([])
+
+    # Compute silhouette values per sample
+    sil_values = silhouette_samples(X_plot, y, metric="euclidean")
+    cluster_labels = np.unique(y)
+    y_lower = 10
+
+    for j, cluster in enumerate(cluster_labels):
+        cluster_sil = sil_values[y == cluster]
+        cluster_sil.sort()
+        size = len(cluster_sil)
+        y_upper = y_lower + size
+
+        # use index j to pick color, not the raw cluster label
+        color = plt.cm.tab10(j % 10)
+        ax.fill_betweenx(
+            np.arange(y_lower, y_upper),
+            0, cluster_sil,
+            facecolor=color, edgecolor=color, alpha=0.7
+        )
+        ax.text(-0.05, y_lower + 0.5*size, str(cluster))
+        y_lower = y_upper + 10  # gap between clusters
+
+    ax.axvline(np.mean(sil_values), color="red", linestyle="--", label = "ASW")
+    ax.axvline(ub_asw, color="blue", linestyle=":", label = rf"upper bound ($\kappa$={kappa})")  # show UB-ASW reference
+    ax.axvline(ub_asw_r, color="black", linestyle="--", label = rf"upper bound ($\kappa$={kappa_r})")  # show UB-ASW reference
+    ax.set_title(f"{dataset['name']}")
+    ax.set_xlim([-0.1, ub_asw + 0.05])
     ax.set_yticks([])
 
-# Hide unused axes if < 20 datasets
-for j in range(i+1, len(axes)):
-    axes[j].axis("off")
+    ax.legend(fontsize=8, loc="upper right")
 
-plt.tight_layout()
-plt.show()
+# Adjust spacing
+plt.subplots_adjust(wspace=0.4, hspace=0.4)
+
+# Save to PDF
+plt.savefig("silhouette_grid.pdf", bbox_inches="tight")
