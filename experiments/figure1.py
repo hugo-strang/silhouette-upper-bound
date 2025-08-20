@@ -2,7 +2,7 @@ import numpy as np
 from silhouette_upper_bound import upper_bound_samples
 from sklearn.datasets import make_blobs
 from sklearn.metrics import pairwise_distances
-from utils import kmeans_optimized, hierarchical_optimized
+from utils import kmeans_optimized, hierarchical_optimized, kmedoids_optimized
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import pandas as pd
@@ -32,6 +32,7 @@ def graph(params):
     silh_list = []
     single_list = []
     weighted_list = []
+    kmedoids_list = []
 
     for k in range(2, 21):
 
@@ -50,16 +51,23 @@ def graph(params):
             data=X, metric="euclidean", method="weighted", t_range=range(k, k + 1)
         )["best_scores"]
 
+        # Kmedoids 
+        kmedoids_scores = kmedoids_optimized(data=X, metric="euclidean", k_range=range(k, k + 1))[
+            "best_scores"
+        ]
+
         k_list.append(k)
         silh_list.append(np.mean(kmeans_scores))
         single_list.append(np.mean(single_scores))
         weighted_list.append(np.mean(weighted_scores))
+        kmedoids_list.append(np.mean(kmedoids_scores))
 
     # Put data into a tidy DataFrame for seaborn
     df = pd.DataFrame(
         {
             "K": k_list,
             "KMeans Silhouette": silh_list,
+            "PAMSIL Silhouette": kmedoids_list,
             "Weighted-Linkage Silhouette": weighted_list,
             "Single-Linkage Silhouette": single_list,
         }
@@ -70,6 +78,7 @@ def graph(params):
         id_vars="K",
         value_vars=[
             "KMeans Silhouette",
+            "PAMSIL Silhouette",
             "Weighted-Linkage Silhouette",
             "Single-Linkage Silhouette",
         ],
@@ -88,7 +97,7 @@ def graph(params):
         hue="Method",
         style="Method",
         markers=True,
-        dashes=False,
+        dashes=True,
         linewidth=2.5,
     )
 

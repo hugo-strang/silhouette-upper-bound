@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from collections import Counter
+import kmedoids
 
 
 def get_data(dataset: str, transpose=False) -> np.ndarray:
@@ -95,6 +96,46 @@ def kmeans_optimized(data, k_range=range(2, 31), random_state=42, n_init="auto")
         print(f"best score: {best_solution['best_score']} | n clusters: {n_clusters}")
 
     return best_solution
+
+
+def kmedoids_optimized(data: np.ndarray, metric: str, k_range=range(2, 11), TOL=1e-10):
+
+    D = pairwise_distances(data, metric=metric)  # convert data to dissimilarity matrix
+    n = D.shape[0]
+
+    assert np.linalg.norm(D - D.T, ord="fro") < TOL, f"Matrix X is not symmetric!"
+    assert (
+        np.abs(np.diag(D)).max() < TOL
+    ), f"Diagonal entries of X are not close to zero!"
+
+    best_solution = {
+        "best_score": 0,  # ASW
+        "best_scores": None,  # Silhouette samples
+        "best_labels": None,  # Cluster labels
+    }
+
+    print(f"Pammedsil optimization")
+    #for k in tqdm(range(2,26)):
+    for k in tqdm(k_range):
+
+        if n < 1000:
+            cluster_labels = kmedoids.pamsil(diss=D, medoids=k, random_state=42).labels + 1
+        else:
+            cluster_labels = kmedoids.fastmsc(diss=D, medoids=k, random_state=42).labels + 1
+
+        best_solution = _optim_iteration(
+            data=D,
+            cluster_labels=cluster_labels,
+            metric="precomputed",
+            best_solution=best_solution,
+        )
+    
+    print(
+        f"best score: {best_solution['best_score']} | n clusters: {len(Counter(best_solution['best_labels']))}"
+    )
+
+    return best_solution
+    
 
 
 def hierarchical_optimized(

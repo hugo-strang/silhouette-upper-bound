@@ -178,3 +178,6 @@ cython_debug/
 
 # pdf files 
 *.pdf
+
+# arff files 
+*.arff
