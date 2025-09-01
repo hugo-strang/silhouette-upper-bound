@@ -1,3 +1,7 @@
+"""
+This file generates a figure showing empirical ASW values for different number of clusters K for a synthetic dataset.
+"""
+
 import numpy as np
 from silhouette_upper_bound import upper_bound_samples
 from sklearn.datasets import make_blobs
