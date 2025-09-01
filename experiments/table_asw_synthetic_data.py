@@ -57,7 +57,7 @@ def table_row(params, k_range: range = range(2, 31)):
                                                )
 
     # Single
-    single_dict = single_dict = utils.asw_optimization(algorithm=utils.algorithm_hierarchical,
+    single_dict = utils.asw_optimization(algorithm=utils.algorithm_hierarchical,
                                                data=D,
                                                k_range=k_range,
                                                asw_metric="precomputed",
