@@ -1,3 +1,7 @@
+"""
+This file generates a table comparing empirical ASW values with the upper bound for synthetic datasets.
+"""
+
 from sklearn.datasets import make_blobs
 import utils
 

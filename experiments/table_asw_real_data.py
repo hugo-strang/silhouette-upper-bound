@@ -1,8 +1,12 @@
+"""
+This file generates a table comparing empirical ASW values with the upper bound for real datasets.
+"""
+
 import utils
 
 logger = utils.get_logger(__name__)
 
-def table_row(dataset: str, metric: str, k_range: range = range(2, 31)):
+def table_row(dataset: str, metric: str, k_range: range = range(2, 3)):
 
     logger.info(f"\nDistance metric: {metric}")
 
