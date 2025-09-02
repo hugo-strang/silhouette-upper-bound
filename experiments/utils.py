@@ -47,7 +47,7 @@ logger = get_logger(__name__)
 # ==========
 
 
-def algorithm_kmeans(data, k, random_state=42, n_init="auto") -> np.ndarray:
+def algorithm_kmeans(data: np.ndarray, k: int, random_state=42, n_init="auto") -> np.ndarray:
     """
     Apply kmeans to data.
 
