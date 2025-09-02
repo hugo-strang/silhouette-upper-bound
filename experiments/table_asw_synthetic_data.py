@@ -49,35 +49,38 @@ def table_row(params, k_range: range = range(2, 31)):
     ub_dict = utils.get_upper_bound(data=X, metric="euclidean")
 
     # Weigthed
-    weighted_dict = utils.asw_optimization(algorithm=utils.algorithm_hierarchical,
-                                               data=D,
-                                               k_range=k_range,
-                                               asw_metric="precomputed",
-                                               method="weighted"
-                                               )
+    weighted_dict = utils.asw_optimization(
+        algorithm=utils.algorithm_hierarchical,
+        data=D,
+        k_range=k_range,
+        asw_metric="precomputed",
+        method="weighted",
+    )
 
     # Single
-    single_dict = utils.asw_optimization(algorithm=utils.algorithm_hierarchical,
-                                               data=D,
-                                               k_range=k_range,
-                                               asw_metric="precomputed",
-                                               method="single"
-                                               )
+    single_dict = utils.asw_optimization(
+        algorithm=utils.algorithm_hierarchical,
+        data=D,
+        k_range=k_range,
+        asw_metric="precomputed",
+        method="single",
+    )
 
     # Kmeans
-    kmeans_dict = utils.asw_optimization(algorithm=utils.algorithm_kmeans,
-                                             data=X,
-                                             k_range=k_range,
-                                             asw_metric="euclidean"
-                                             )
+    kmeans_dict = utils.asw_optimization(
+        algorithm=utils.algorithm_kmeans,
+        data=X,
+        k_range=k_range,
+        asw_metric="euclidean",
+    )
 
     # Kmedoids
-    kmedoids_dict = utils.asw_optimization(algorithm=utils.algorithm_kmedoids,
-                                             data=D,
-                                             k_range=k_range,
-                                             asw_metric="precomputed"
-                                             )
-
+    kmedoids_dict = utils.asw_optimization(
+        algorithm=utils.algorithm_kmedoids,
+        data=D,
+        k_range=k_range,
+        asw_metric="precomputed",
+    )
 
     weighted_str = f"${weighted_dict['best_score']:.3f}$ ({len(utils.Counter(weighted_dict['best_labels']))})"
     single_str = f"${single_dict['best_score']:.3f}$ ({len(utils.Counter(single_dict['best_labels']))})"

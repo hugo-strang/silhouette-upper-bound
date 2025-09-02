@@ -9,6 +9,7 @@ import utils
 
 logger = utils.get_logger(__name__)
 
+
 def table_row(dataset: str, metric: str, k_range: range = range(2, 3)):
 
     logger.info(f"\nDistance metric: {metric}")
@@ -28,54 +29,60 @@ def table_row(dataset: str, metric: str, k_range: range = range(2, 3)):
 
     # Weighted
     if n > 1000:
-        weighted_dict = utils.asw_optimization(algorithm=utils.algorithm_hierarchical,
-                                               data=dissimilarity_matrix,
-                                               k_range=k_range,
-                                               asw_metric="precomputed",
-                                               method="weighted"
-                                               )
+        weighted_dict = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=dissimilarity_matrix,
+            k_range=k_range,
+            asw_metric="precomputed",
+            method="weighted",
+        )
     else:
-        weighted_dict = utils.asw_optimization(algorithm=utils.algorithm_hierarchical,
-                                               data=dissimilarity_matrix,
-                                               k_range=range(2,n + 1),
-                                               asw_metric="precomputed",
-                                               method="weighted"
-                                               )
+        weighted_dict = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=dissimilarity_matrix,
+            k_range=range(2, n + 1),
+            asw_metric="precomputed",
+            method="weighted",
+        )
 
     # Single
     if n > 1000:
-        single_dict = utils.asw_optimization(algorithm=utils.algorithm_hierarchical,
-                                               data=dissimilarity_matrix,
-                                               k_range=k_range,
-                                               asw_metric="precomputed",
-                                               method="single"
-                                               )
+        single_dict = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=dissimilarity_matrix,
+            k_range=k_range,
+            asw_metric="precomputed",
+            method="single",
+        )
     else:
-        single_dict = utils.asw_optimization(algorithm=utils.algorithm_hierarchical,
-                                               data=dissimilarity_matrix,
-                                               k_range=range(2,n + 1),
-                                               asw_metric="precomputed",
-                                               method="single"
-                                               )
+        single_dict = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=dissimilarity_matrix,
+            k_range=range(2, n + 1),
+            asw_metric="precomputed",
+            method="single",
+        )
 
     # Kmeans
     if metric == "euclidean":
-        kmeans_dict = utils.asw_optimization(algorithm=utils.algorithm_kmeans,
-                                             data=data,
-                                             k_range=k_range,
-                                             asw_metric=metric
-                                             )
+        kmeans_dict = utils.asw_optimization(
+            algorithm=utils.algorithm_kmeans,
+            data=data,
+            k_range=k_range,
+            asw_metric=metric,
+        )
         kmeans_str = f"${kmeans_dict['best_score']:.3f}$ ({len(utils.Counter(kmeans_dict['best_labels']))})"
     else:
         kmeans_dict = {"best_score": "N/A"}
         kmeans_str = "N/A"
 
     # Kmedoids
-    kmedoids_dict = utils.asw_optimization(algorithm=utils.algorithm_kmedoids,
-                                             data=dissimilarity_matrix,
-                                             k_range=k_range,
-                                             asw_metric="precomputed"
-                                             )
+    kmedoids_dict = utils.asw_optimization(
+        algorithm=utils.algorithm_kmedoids,
+        data=dissimilarity_matrix,
+        k_range=k_range,
+        asw_metric="precomputed",
+    )
 
     kmedoids_str = f"${kmedoids_dict['best_score']:.3f}$ ({len(utils.Counter(kmedoids_dict['best_labels']))})"
     weighted_str = f"${weighted_dict['best_score']:.3f}$ ({len(utils.Counter(weighted_dict['best_labels']))})"
@@ -138,12 +145,12 @@ def table(dataset_metric: list):
 if __name__ == "__main__":
 
     dataset_metric = [
-        ("rna", "correlation"), 
-        ("religious_texts", "cosine"), 
+        ("rna", "correlation"),
+        ("religious_texts", "cosine"),
         ("conference_papers", "cosine"),
         ("religious_texts", "euclidean"),
-        ("ceramic", "euclidean"), 
-        ("conference_papers", "euclidean"), 
+        ("ceramic", "euclidean"),
+        ("conference_papers", "euclidean"),
         ("rna", "euclidean"),
         ("religious_texts", "jaccard"),
         ("conference_papers", "jaccard"),

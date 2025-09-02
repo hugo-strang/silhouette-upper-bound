@@ -13,6 +13,7 @@ import seaborn as sns
 
 logger = utils.get_logger(__name__)
 
+
 def graph(params):
 
     # Parameters
@@ -41,39 +42,39 @@ def graph(params):
     for k in range(2, 21):
 
         # Kmeans
-        kmeans_score = utils.asw_optimization(algorithm=utils.algorithm_kmeans,
-                                             data=X,
-                                             k_range=range(k, k + 1),
-                                             asw_metric="euclidean",
-                                             n_init=10
-                                             )[
-                                                "best_score"
-                                            ]
+        kmeans_score = utils.asw_optimization(
+            algorithm=utils.algorithm_kmeans,
+            data=X,
+            k_range=range(k, k + 1),
+            asw_metric="euclidean",
+            n_init=10,
+        )["best_score"]
 
         # Single
-        single_score = utils.asw_optimization(algorithm=utils.algorithm_hierarchical,
-                                               data=D,
-                                               k_range=range(k, k + 1),
-                                               asw_metric="precomputed",
-                                               method="single"
-                                               )["best_score"]
+        single_score = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=D,
+            k_range=range(k, k + 1),
+            asw_metric="precomputed",
+            method="single",
+        )["best_score"]
 
         # Weighted
-        weighted_score = utils.asw_optimization(algorithm=utils.algorithm_hierarchical,
-                                               data=D,
-                                               k_range=range(k, k + 1),
-                                               asw_metric="precomputed",
-                                               method="weighted"
-                                               )["best_score"]
+        weighted_score = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=D,
+            k_range=range(k, k + 1),
+            asw_metric="precomputed",
+            method="weighted",
+        )["best_score"]
 
-        # Kmedoids 
-        kmedoids_score = utils.asw_optimization(algorithm=utils.algorithm_kmedoids,
-                                             data=D,
-                                             k_range=range(k, k + 1),
-                                             asw_metric="precomputed"
-                                             )[
-                                                "best_score"
-                                            ]
+        # Kmedoids
+        kmedoids_score = utils.asw_optimization(
+            algorithm=utils.algorithm_kmedoids,
+            data=D,
+            k_range=range(k, k + 1),
+            asw_metric="precomputed",
+        )["best_score"]
 
         k_list.append(k)
         silh_list.append(kmeans_score)

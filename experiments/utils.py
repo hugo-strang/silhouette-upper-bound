@@ -13,12 +13,13 @@ from scipy.io import arff
 from scipy.spatial.distance import pdist
 import os
 from typing import Callable
-import logging 
+import logging
 from logging import Logger
 
 # =======
 # Logging
 # =======
+
 
 def get_logger(name: str) -> Logger:
     """
@@ -26,18 +27,18 @@ def get_logger(name: str) -> Logger:
     Ensures no duplicate handlers are added.
     """
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)  
+    logger.setLevel(logging.INFO)
 
     if not logger.handlers:  # Avoid adding multiple handlers
         handler = logging.StreamHandler()  # console output
         formatter = logging.Formatter(
-            "%(asctime)s | %(name)s | %(levelname)s | %(message)s",
-            "%Y-%m-%d %H:%M:%S"
+            "%(asctime)s | %(name)s | %(levelname)s | %(message)s", "%Y-%m-%d %H:%M:%S"
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
     return logger
+
 
 logger = get_logger(__name__)
 
@@ -45,21 +46,22 @@ logger = get_logger(__name__)
 # Algorithms
 # ==========
 
+
 def algorithm_kmeans(data, k, random_state=42, n_init="auto") -> np.ndarray:
     """
     Apply kmeans to data.
-    
+
     Parameters
     ----------
         data: np.ndarray
             Shape n_samples x n_features.
-        
+
         k: int
             Number of clusters.
-    
+
     Returns
     -------
-        np.ndarray  
+        np.ndarray
             Cluster labels
     """
 
@@ -79,13 +81,18 @@ def algorithm_hierarchical(data: np.ndarray, k: int, method: str) -> np.ndarray:
 
     return fcluster(linkage(vector_form_data, method=method), t=k, criterion="maxclust")
 
+
 def algorithm_kmedoids(data: np.ndarray, k: int, random_state: int = 42) -> np.ndarray:
 
     if data.shape[0] < 1000:
-            cluster_labels = kmedoids.pamsil(diss=data, medoids=k, random_state=random_state).labels + 1
+        cluster_labels = (
+            kmedoids.pamsil(diss=data, medoids=k, random_state=random_state).labels + 1
+        )
     else:
-        cluster_labels = kmedoids.fastmsc(diss=data, medoids=k, random_state=random_state).labels + 1
-    
+        cluster_labels = (
+            kmedoids.fastmsc(diss=data, medoids=k, random_state=random_state).labels + 1
+        )
+
     return cluster_labels
 
 
@@ -112,38 +119,46 @@ def _optim_iteration(data, cluster_labels, metric, best_solution):
     return best_solution
 
 
-def asw_optimization(algorithm: Callable, data: np.ndarray, k_range: range, asw_metric: str, ub_reference: float | None = None, epsilon: float = 0.15, **kwargs):
+def asw_optimization(
+    algorithm: Callable,
+    data: np.ndarray,
+    k_range: range,
+    asw_metric: str,
+    ub_reference: float | None = None,
+    epsilon: float = 0.15,
+    **kwargs,
+):
     """
-    
+
     Parameters
     ----------
-        algorithm: Callable 
+        algorithm: Callable
             function that returns cluster labels corresponding to dataset
-        
+
         data: np.ndarray
             if algorithm is kmeans, then shape should be n_samples x n_features,
             otherwise shape should be n_samples x n_samples (distance_matrix).
-        
+
         k_range: range
             k candidates
-        
+
         asw_metric: str
             e.g. 'euclidean' or 'precomputed'.
-        
+
         ub_reference: float | None
             used for early stopping (default is None, which means no early stopping is applied).
-        
+
         epsilon: float
             early stopping tolerance (default is 0.15).
 
     """
-    
+
     # Inititalize best solution
     best_solution = {
         "best_score": 0,  # ASW
         "best_scores": None,  # Silhouette samples
         "best_labels": None,  # Cluster labels
-        "stopped_early": False  # yes/no early stopping applied
+        "stopped_early": False,  # yes/no early stopping applied
     }
 
     logger.info(f"Optimizing ASW")
@@ -164,13 +179,18 @@ def asw_optimization(algorithm: Callable, data: np.ndarray, k_range: range, asw_
                 logger.info("Stopping early!")
                 best_solution["stopped_early"] = True
                 return best_solution
-    
+
     return best_solution
 
 
-
-
-def kmeans_optimized(data, k_range=range(2, 31), random_state=42, n_init="auto", ub_reference=None, epsilon=0.15):
+def kmeans_optimized(
+    data,
+    k_range=range(2, 31),
+    random_state=42,
+    n_init="auto",
+    ub_reference=None,
+    epsilon=0.15,
+):
     """
 
     Parameters
@@ -185,7 +205,7 @@ def kmeans_optimized(data, k_range=range(2, 31), random_state=42, n_init="auto",
         "best_score": 0,  # ASW
         "best_scores": None,  # Silhouette samples
         "best_labels": None,  # Cluster labels
-        "stopped_early": False  # yes/no early stopping applied
+        "stopped_early": False,  # yes/no early stopping applied
     }
 
     logger.info(f"Kmeans optimization")
@@ -217,12 +237,21 @@ def kmeans_optimized(data, k_range=range(2, 31), random_state=42, n_init="auto",
             f"best score: {best_solution['best_score']} | n clusters: {n_clusters} | clusters: {sorted(clusters.items())}"
         )
     else:
-        logger.info(f"best score: {best_solution['best_score']} | n clusters: {n_clusters}")
+        logger.info(
+            f"best score: {best_solution['best_score']} | n clusters: {n_clusters}"
+        )
 
     return best_solution
 
 
-def kmedoids_optimized(data: np.ndarray, metric: str, k_range=range(2, 11), TOL=1e-10, ub_reference=None, epsilon=0.15):
+def kmedoids_optimized(
+    data: np.ndarray,
+    metric: str,
+    k_range=range(2, 11),
+    TOL=1e-10,
+    ub_reference=None,
+    epsilon=0.15,
+):
 
     D = pairwise_distances(data, metric=metric)  # convert data to dissimilarity matrix
     n = D.shape[0]
@@ -236,17 +265,21 @@ def kmedoids_optimized(data: np.ndarray, metric: str, k_range=range(2, 11), TOL=
         "best_score": 0,  # ASW
         "best_scores": None,  # Silhouette samples
         "best_labels": None,  # Cluster labels
-        "stopped_early": False  # yes/no early stopping applied
+        "stopped_early": False,  # yes/no early stopping applied
     }
 
     logger.info(f"Pammedsil optimization")
-    #for k in tqdm(range(2,26)):
+    # for k in tqdm(range(2,26)):
     for k in tqdm(k_range):
 
         if n < 1000:
-            cluster_labels = kmedoids.pamsil(diss=D, medoids=k, random_state=42).labels + 1
+            cluster_labels = (
+                kmedoids.pamsil(diss=D, medoids=k, random_state=42).labels + 1
+            )
         else:
-            cluster_labels = kmedoids.fastmsc(diss=D, medoids=k, random_state=42).labels + 1
+            cluster_labels = (
+                kmedoids.fastmsc(diss=D, medoids=k, random_state=42).labels + 1
+            )
 
         best_solution = _optim_iteration(
             data=D,
@@ -261,13 +294,12 @@ def kmedoids_optimized(data: np.ndarray, metric: str, k_range=range(2, 11), TOL=
                 logger.info("Stopping early!")
                 best_solution["stopped_early"] = True
                 return best_solution
-    
+
     logger.info(
         f"best score: {best_solution['best_score']} | n clusters: {len(Counter(best_solution['best_labels']))}"
     )
 
     return best_solution
-    
 
 
 def hierarchical_optimized(
@@ -328,7 +360,7 @@ def hierarchical_optimized(
 
 # ===========
 # Upper bound
-# =========== 
+# ===========
 
 
 def get_upper_bound(data: np.ndarray, metric: str) -> dict:
@@ -352,25 +384,26 @@ def get_upper_bound(data: np.ndarray, metric: str) -> dict:
 # Load data
 # ===========
 
+
 def data_to_distance_matrix(data, metric, TOL=1e-10):
     """
     Parameters
     ----------
         data: np.ndarray
             shape n_samples x n_features.
-        
+
         metric: str
             distance metric.
-        
-        TOL: float 
+
+        TOL: float
             tolerance for matrix symmetry.
-    
+
     Returns
     -------
         np.ndarray
             distance matrix of shape n_samples x n_samples.
     """
-    
+
     D = pairwise_distances(data, metric=metric)  # convert data to dissimilarity matrix
 
     assert np.linalg.norm(D - D.T, ord="fro") < TOL, f"Matrix X is not symmetric!"
@@ -378,9 +411,7 @@ def data_to_distance_matrix(data, metric, TOL=1e-10):
         np.abs(np.diag(D)).max() < TOL
     ), f"Diagonal entries of X are not close to zero!"
 
-    return D 
-    
-    
+    return D
 
 
 def load_unlabeled_data(dataset: str, transpose: bool = False) -> np.ndarray:
@@ -391,8 +422,8 @@ def load_unlabeled_data(dataset: str, transpose: bool = False) -> np.ndarray:
     ----------
         dataset: str
             Should be 'ceramic', 'conference_papers', 'religious_papers' or 'rna'
-        
-        transpose: bool 
+
+        transpose: bool
             Should be True if data has shape n_features x n_samples (default is False).
     """
 
@@ -427,34 +458,33 @@ def load_arff_as_distance_matrix(path, metric="euclidean", scale=False):
     df = pd.DataFrame(data)
     fname = os.path.basename(path).lower()
 
-
     if "wdbc" in fname:
         # First column is ID, second is label
         y = df.iloc[:, 1].astype(str).to_numpy()
-        X = df.iloc[:, 2:].to_numpy()  
+        X = df.iloc[:, 2:].to_numpy()
 
     elif "wine" in fname:
         # Frst column is label
         y = df.iloc[:, 0].astype(str).to_numpy()
-        X = df.iloc[:, 1:].to_numpy() 
+        X = df.iloc[:, 1:].to_numpy()
 
     elif "yeast" in fname:
-        # Frst column is ID 
+        # Frst column is ID
         y = df.iloc[:, -1].astype(str).to_numpy()
-        X = df.iloc[:, 1:].to_numpy() 
+        X = df.iloc[:, 1:].to_numpy()
 
     elif "mopsi-joensuu" in fname:
-        # Frst column is ID 
+        # Frst column is ID
         y = np.zeros(df.shape[0])
-        X = df.iloc[:, :].to_numpy() 
+        X = df.iloc[:, :].to_numpy()
 
     else:
         # Last column is label
         y = df.iloc[:, -1].astype(str).to_numpy()
         X = df.iloc[:, :-1].to_numpy()
-    
+
     # Replace missing values ("?")
-    X = np.where(X == b'?', np.nan, X).astype(float)
+    X = np.where(X == b"?", np.nan, X).astype(float)
     col_means = np.nanmean(X, axis=0)
     inds = np.where(np.isnan(X))
     X[inds] = np.take(col_means, inds[1])
