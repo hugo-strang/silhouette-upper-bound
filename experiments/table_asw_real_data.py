@@ -1,5 +1,8 @@
 """
 This file generates a table comparing empirical ASW values with the upper bound for real datasets.
+
+Note:
+    - The real datasets are available at https://archive.ics.uci.edu/
 """
 
 import utils
