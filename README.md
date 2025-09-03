@@ -1,6 +1,14 @@
 # Silhouette Upper Bound
 An upper bound of the [Average Silhouette Width](https://en.wikipedia.org/wiki/Silhouette_(clustering)).
 
+![My Figure](figures/silhouette_samples.png)
+![My Figure](figures/asw_vs_k.png)
+
+<p align="center">
+  <img src="figures/fig1.png" width="45%">
+  <img src="figures/fig2.png" width="45%">
+</p>
+
 ## Overview
 Evaluating clustering quality is a fundamental task in cluster analysis, and the
 [Average Silhouette Width](https://en.wikipedia.org/wiki/Silhouette_(clustering)) (ASW) is one of the most widely used metrics for this purpose. ASW scores range from $-1$ to $1$, where:
@@ -16,6 +24,26 @@ Optimizing the Silhouette score is a common objective in clustering workflows. H
 This project introduces a data-dependent upper bound on the ASW that hopefully can provide a more meaningful reference point than the fixed value of 1. The upper bound helps answer a key question: How close is my clustering result to the best possible outcome on this specific data?
 
 To compute the upper bound, the method requires a dissimilarity matrix as input.
+
+## Use Cases
+
+The proposed data-dependent upper bound on the Average Silhouette Width (ASW) opens up opportunities for both research and industry applications.
+
+### Research (Academic Endeavors)
+
+**Confirming global optimality:** Certify that an empirically obtained clustering is within $\epsilon$ of the true ASW maximum.
+
+**Sharper comparisons across algorithms:** Interpret algorithm performance relative to dataset-specific ceilings, rather than the generic $[-1,1]$ scale.
+
+### Industry (Practical Applications)
+
+**Early stopping in optimization loops:** Halt ASW-based searches once solutions are provably close to optimal, saving time and resources.
+
+**Proxy for clusterability:** A low bound indicates limited potential for meaningful clusters, guiding analysts before heavy computation.
+
+**Outlier detection:** Pointwise upper bounds flag observations that cannot fit well into any cluster.
+
+**Constraint-aware clustering:** Incorporate application constraints (e.g. minimal cluster size) via restricted bounds.
 
 ## Installation
 ```
