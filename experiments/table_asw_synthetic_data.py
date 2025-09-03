@@ -32,7 +32,7 @@ def table(rows):
         print(" & ".join(f"${str(cell)}$" for cell in row) + " \\\ ")
 
 
-def table_row(params, k_range: range = range(2, 31)):
+def table_row(params, k_range: range = range(2, 26)):
 
     n_samples, n_features, centers, cluster_std = params
     # Generate synthetic data
@@ -72,6 +72,7 @@ def table_row(params, k_range: range = range(2, 31)):
         data=X,
         k_range=k_range,
         asw_metric="euclidean",
+        n_init=10,
     )
 
     # Kmedoids
@@ -85,7 +86,7 @@ def table_row(params, k_range: range = range(2, 31)):
     weighted_str = f"${weighted_dict['best_score']:.3f}$ ({len(utils.Counter(weighted_dict['best_labels']))})"
     single_str = f"${single_dict['best_score']:.3f}$ ({len(utils.Counter(single_dict['best_labels']))})"
     kmeans_str = f"${kmeans_dict['best_score']:.3f}$ ({len(utils.Counter(kmeans_dict['best_labels']))})"
-    kmedoids_str = f"${kmeans_dict['best_score']:.3f}$ ({len(utils.Counter(kmedoids_dict['best_labels']))})"
+    kmedoids_str = f"${kmedoids_dict['best_score']:.3f}$ ({len(utils.Counter(kmedoids_dict['best_labels']))})"
 
     return (
         "-".join(str(x) for x in params),
