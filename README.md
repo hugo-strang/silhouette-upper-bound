@@ -1,13 +1,11 @@
 # Silhouette Upper Bound
 An upper bound of the [Average Silhouette Width](https://en.wikipedia.org/wiki/Silhouette_(clustering)).
 
-![My Figure](figures/silhouette_samples.png)
-![My Figure](figures/asw_vs_k.png)
+![Silhouette Samples](figures/silhouette_samples.png)
+*Figure 1: Kmeans clustering applied to a synthetic dataset. Code available [`here`](./experiments/figure_silhouette_samples.py).*
 
-<p align="center">
-  <img src="figures/fig1.png" width="45%">
-  <img src="figures/fig2.png" width="45%">
-</p>
+![ASW vs K](figures/asw_vs_k.png)
+*Figure 2: ASW for varying K. Code available [`here`](./experiments/figure_asw_vs_k.py).*
 
 ## Overview
 Evaluating clustering quality is a fundamental task in cluster analysis, and the
