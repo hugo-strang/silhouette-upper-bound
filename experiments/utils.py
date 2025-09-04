@@ -7,32 +7,99 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from collections import Counter
+import kmedoids
+from sklearn.preprocessing import StandardScaler
+from scipy.io import arff
+from scipy.spatial.distance import pdist
+import os
+from typing import Callable
+import logging
+from logging import Logger
+import matplotlib.pyplot as plt 
+
+# =======
+# Logging
+# =======
 
 
-def get_data(dataset: str, transpose=False) -> np.ndarray:
-    path = f"data/{dataset}/data.csv"
+def get_logger(name: str) -> Logger:
+    """
+    Get a configured logger with the given name.
+    Ensures no duplicate handlers are added.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
 
-    print(f"==== Running dataset: {dataset} ====\n")
+    if not logger.handlers:  # Avoid adding multiple handlers
+        handler = logging.StreamHandler()  # console output
+        formatter = logging.Formatter(
+            "%(asctime)s | %(name)s | %(levelname)s | %(message)s", "%Y-%m-%d %H:%M:%S"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
-    df = pd.read_csv(path)
+    return logger
 
-    data = df.select_dtypes(include="number")
 
-    if transpose:
-        data = data.transpose()
+logger = get_logger(__name__)
 
-    print(f"Data shape: {data.shape}")
+# ==========
+# Algorithms
+# ==========
 
-    data = data.to_numpy()
 
-    # Removing zero-vectors
-    non_zero_rows = ~np.all(data == 0, axis=1)
+def algorithm_kmeans(data: np.ndarray, k: int, random_state=42, n_init="auto") -> np.ndarray:
+    """
+    Apply kmeans to data.
 
-    data = data[non_zero_rows]
+    Parameters
+    ----------
+        data: np.ndarray
+            Shape n_samples x n_features.
 
-    print(f"Data shape (zeros removed): {data.shape}")
+        k: int
+            Number of clusters.
 
-    return data
+    Returns
+    -------
+        np.ndarray
+            Cluster labels
+    """
+
+    kmeans = KMeans(n_clusters=k, random_state=random_state, n_init=n_init)
+
+    return kmeans.fit_predict(data) + 1
+
+
+def algorithm_hierarchical(data: np.ndarray, k: int, method: str) -> np.ndarray:
+    """
+    ...
+    """
+
+    vector_form_data = squareform(
+        data, checks=False
+    )  # convert dissimilarity matrix to vector-form distance vector
+
+    return fcluster(linkage(vector_form_data, method=method), t=k, criterion="maxclust")
+
+
+def algorithm_kmedoids(data: np.ndarray, k: int, random_state: int = 42) -> np.ndarray:
+
+    if data.shape[0] < 1000:
+        cluster_labels = (
+            kmedoids.pamsil(diss=data, medoids=k, random_state=random_state).labels + 1
+        )
+    else:
+        cluster_labels = (
+            kmedoids.fastmsc(diss=data, medoids=k, random_state=random_state).labels + 1
+        )
+
+    return cluster_labels
+
+
+# ============
+# Optimization
+# ============
 
 
 def _optim_iteration(data, cluster_labels, metric, best_solution):
@@ -53,66 +120,114 @@ def _optim_iteration(data, cluster_labels, metric, best_solution):
     return best_solution
 
 
-def kmeans_optimized(data, k_range=range(2, 31), random_state=42, n_init="auto"):
-    """
-
-    Parameters
-    ----------
-        data: np.ndarray
-            array of shape (n_samples, n_features)
-        k_range: range
-            specifies which values for K to use
-    """
-
-    best_solution = {
-        "best_score": 0,  # ASW
-        "best_scores": None,  # Silhouette samples
-        "best_labels": None,  # Cluster labels
-    }
-
-    print(f"Kmeans optimization")
-
-    for k in tqdm(k_range):
-
-        kmeans = KMeans(n_clusters=k, random_state=random_state, n_init=n_init)
-
-        cluster_labels = kmeans.fit_predict(data) + 1  # 1:indexed
-
-        best_solution = _optim_iteration(
-            data=data,
-            cluster_labels=cluster_labels,
-            metric="euclidean",
-            best_solution=best_solution,
-        )
-
-    n_clusters = len(Counter(best_solution["best_labels"]))
-    if n_clusters <= 6:
-        clusters = {int(k): v for k, v in Counter(best_solution["best_labels"]).items()}
-        print(
-            f"best score: {best_solution['best_score']} | n clusters: {n_clusters} | clusters: {sorted(clusters.items())}"
-        )
-    else:
-        print(f"best score: {best_solution['best_score']} | n clusters: {n_clusters}")
-
-    return best_solution
-
-
-def hierarchical_optimized(
-    data: np.ndarray, metric: str, method="single", t_range=range(2, 31), TOL=1e-10
+def asw_optimization(
+    algorithm: Callable,
+    data: np.ndarray,
+    k_range: range,
+    asw_metric: str,
+    ub_reference: float | None = None,
+    epsilon: float = 0.15,
+    **kwargs,
 ):
     """
 
     Parameters
     ----------
-        D: np.ndarray
-            distance matrix of shape (n_samples, n_features)
-        metric: str
-            distance metric, e.g. "euclidean" or "cosine"
-        method: str
-            specifies the linkage method
-        t_range: range
-            specifies which values for K to use
+        algorithm: Callable
+            function that returns cluster labels corresponding to dataset
 
+        data: np.ndarray
+            if algorithm is kmeans, then shape should be n_samples x n_features,
+            otherwise shape should be n_samples x n_samples (distance_matrix).
+
+        k_range: range
+            k candidates
+
+        asw_metric: str
+            e.g. 'euclidean' or 'precomputed'.
+
+        ub_reference: float | None
+            used for early stopping (default is None, which means no early stopping is applied).
+
+        epsilon: float
+            early stopping tolerance (default is 0.15).
+
+    """
+
+    # Inititalize best solution
+    best_solution = {
+        "best_score": 0,  # ASW
+        "best_scores": None,  # Silhouette samples
+        "best_labels": None,  # Cluster labels
+        "stopped_early": False,  # yes/no early stopping applied
+    }
+
+    logger.info(f"Optimizing ASW")
+    for k in tqdm(k_range):
+
+        cluster_labels = algorithm(data, k, **kwargs)
+
+        best_solution = _optim_iteration(
+            data=data,
+            cluster_labels=cluster_labels,
+            metric=asw_metric,
+            best_solution=best_solution,
+        )
+
+        if ub_reference is not None:
+
+            if (ub_reference - best_solution["best_score"]) / ub_reference < epsilon:
+                logger.info("Stopping early!")
+                best_solution["stopped_early"] = True
+                return best_solution
+
+    return best_solution
+
+
+# ===========
+# Upper bound
+# ===========
+
+
+def get_upper_bound(data: np.ndarray, metric: str) -> dict:
+
+    D = pairwise_distances(data, metric=metric)  # convert data to dissimilarity matrix
+
+    logger.info(f"Computing upper bound")
+
+    ubs = upper_bound_samples(D)
+
+    ub = np.mean(ubs)
+    ubs_min = np.min(ubs)
+    ubs_max = np.max(ubs)
+
+    logger.info(f"UB: {ub}")
+
+    return {"ub": ub, "min": ubs_min, "max": ubs_max, "samples": ubs}
+
+
+# ===========
+# Load data
+# ===========
+
+
+def data_to_distance_matrix(data, metric, TOL=1e-10):
+    """
+    Parameters
+    ----------
+        data: np.ndarray
+            shape n_samples x n_features.
+
+        metric: str
+            distance metric.
+
+        TOL: float
+            tolerance for matrix symmetry.
+
+    Returns
+    -------
+        np.ndarray
+            distance matrix of shape n_samples x n_samples.
     """
 
     D = pairwise_distances(data, metric=metric)  # convert data to dissimilarity matrix
@@ -122,49 +237,132 @@ def hierarchical_optimized(
         np.abs(np.diag(D)).max() < TOL
     ), f"Diagonal entries of X are not close to zero!"
 
-    vector_D = squareform(
-        D, checks=False
-    )  # convert dissimilarity matrix to vector-form distance vector
+    return D
 
-    best_solution = {
-        "best_score": 0,  # ASW
-        "best_scores": None,  # Silhouette samples
-        "best_labels": None,  # Cluster labels
+
+def load_unlabeled_data(dataset: str, transpose: bool = False) -> np.ndarray:
+    """
+    Load unlabeled dataset.
+
+    Parameters
+    ----------
+        dataset: str
+            Should be 'ceramic', 'conference_papers', 'religious_papers' or 'rna'
+
+        transpose: bool
+            Should be True if data has shape n_features x n_samples (default is False).
+    """
+
+    path = f"data/unlabeled/{dataset}/data.csv"
+
+    logger.info(f"==== Running dataset: {dataset} ====\n")
+
+    df = pd.read_csv(path)
+
+    data = df.select_dtypes(include="number")
+
+    if transpose:
+        data = data.transpose()
+
+    logger.info(f"Data shape: {data.shape}")
+
+    data = data.to_numpy()
+
+    # Removing zero-vectors
+    non_zero_rows = ~np.all(data == 0, axis=1)
+
+    data = data[non_zero_rows]
+
+    logger.info(f"Data shape (zeros removed): {data.shape}")
+
+    return data
+
+
+def load_arff_as_distance_matrix(path, metric="euclidean", scale=False):
+    # Load
+    data, meta = arff.loadarff(path)
+    df = pd.DataFrame(data)
+    fname = os.path.basename(path).lower()
+
+    if "wdbc" in fname:
+        # First column is ID, second is label
+        y = df.iloc[:, 1].astype(str).to_numpy()
+        X = df.iloc[:, 2:].to_numpy()
+
+    elif "wine" in fname:
+        # Frst column is label
+        y = df.iloc[:, 0].astype(str).to_numpy()
+        X = df.iloc[:, 1:].to_numpy()
+
+    elif "yeast" in fname:
+        # Frst column is ID
+        y = df.iloc[:, -1].astype(str).to_numpy()
+        X = df.iloc[:, 1:].to_numpy()
+
+    elif "mopsi-joensuu" in fname:
+        # Frst column is ID
+        y = np.zeros(df.shape[0])
+        X = df.iloc[:, :].to_numpy()
+
+    else:
+        # Last column is label
+        y = df.iloc[:, -1].astype(str).to_numpy()
+        X = df.iloc[:, :-1].to_numpy()
+
+    # Replace missing values ("?")
+    X = np.where(X == b"?", np.nan, X).astype(float)
+    col_means = np.nanmean(X, axis=0)
+    inds = np.where(np.isnan(X))
+    X[inds] = np.take(col_means, inds[1])
+
+    if scale:
+        X = StandardScaler().fit_transform(X)
+
+    # Remove potential zero vecs
+    X = X[~np.all(np.isclose(X, 0, atol=1e-12), axis=1)]
+
+    # Distance matrix
+    D = squareform(pdist(X, metric=metric))
+
+    return D, X, y
+
+
+# ========
+# Plotting
+# ========
+
+def get_silhouette_plot_data(labels, scores, n_clusters, ub_samples):
+
+    data = {
+        i : {} for i in range(1, n_clusters + 1)
     }
 
-    print(f"{method} optimization")
-    for t in tqdm(t_range):
+    y_lower = 10
+    for i in data.keys():
 
-        cluster_labels = fcluster(
-            linkage(vector_D, method=method), t=t, criterion="maxclust"
-        )
+        indices = np.where(labels == i)[0]
+        cluster_silhouettes = scores[indices]
+        cluster_ub_values = ub_samples[indices]
 
-        best_solution = _optim_iteration(
-            data=D,
-            cluster_labels=cluster_labels,
-            metric="precomputed",
-            best_solution=best_solution,
-        )
+        # Get sorted order of silhouette values
+        sorted_order = np.argsort(cluster_silhouettes)
 
-    print(
-        f"best score: {best_solution['best_score']} | n clusters: {len(Counter(best_solution['best_labels']))}"
-    )
+        sorted_silhouettes = cluster_silhouettes[sorted_order]
+        sorted_ub_values = cluster_ub_values[sorted_order]
 
-    return best_solution
+        size_cluster_i = sorted_silhouettes.shape[0]
+        y_upper = y_lower + size_cluster_i
 
+        color = plt.cm.viridis(float(i) / n_clusters)
 
-def get_upper_bound(data: np.ndarray, metric: str) -> dict:
+        data[i]['y_lower'] = y_lower
+        data[i]['y_upper'] = y_upper 
+        data[i]['sorted_silhouettes'] = sorted_silhouettes
+        data[i]['color'] = color
+        data[i]['sorted_ub_values'] = sorted_ub_values
+        data[i]['size_cluster_i'] = size_cluster_i
 
-    D = pairwise_distances(data, metric=metric)  # convert data to dissimilarity matrix
-
-    print(f"Computing upper bound")
-
-    ubs = upper_bound_samples(D)
-
-    ub = np.mean(ubs)
-    ubs_min = np.min(ubs)
-    ubs_max = np.max(ubs)
-
-    print(f"UB: {ub}")
-
-    return {"ub": ub, "min": ubs_min, "max": ubs_max, "samples": ubs}
+        # update y_lower
+        y_lower = y_upper + 10
+    
+    return data 

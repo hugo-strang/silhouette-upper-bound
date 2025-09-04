@@ -178,3 +178,9 @@ cython_debug/
 
 # pdf files 
 *.pdf
+
+# arff files 
+*.arff
+
+# DS_Store
+.*DS_Store

@@ -1,6 +1,12 @@
 # Silhouette Upper Bound
 An upper bound of the [Average Silhouette Width](https://en.wikipedia.org/wiki/Silhouette_(clustering)).
 
+![Silhouette Samples](figures/silhouette_samples.png)
+*Figure 1: Kmeans clustering applied to a synthetic dataset. Code available [`here`](./experiments/figure_silhouette_samples.py).*
+
+![ASW vs K](figures/asw_vs_k.png)
+*Figure 2: ASW for varying K. Code available [`here`](./experiments/figure_asw_vs_k.py).*
+
 ## Overview
 Evaluating clustering quality is a fundamental task in cluster analysis, and the
 [Average Silhouette Width](https://en.wikipedia.org/wiki/Silhouette_(clustering)) (ASW) is one of the most widely used metrics for this purpose. ASW scores range from $-1$ to $1$, where:
@@ -16,6 +22,26 @@ Optimizing the Silhouette score is a common objective in clustering workflows. H
 This project introduces a data-dependent upper bound on the ASW that hopefully can provide a more meaningful reference point than the fixed value of 1. The upper bound helps answer a key question: How close is my clustering result to the best possible outcome on this specific data?
 
 To compute the upper bound, the method requires a dissimilarity matrix as input.
+
+## Use Cases
+
+The proposed data-dependent upper bound on the Average Silhouette Width (ASW) opens up opportunities for both research and industry applications.
+
+### Research (Academic Endeavors)
+
+**Confirming global optimality:** Certify that an empirically obtained clustering is within $\epsilon$ of the true ASW maximum.
+
+**Sharper comparisons across algorithms:** Interpret algorithm performance relative to dataset-specific ceilings, rather than the generic $[-1,1]$ scale.
+
+### Industry (Practical Applications)
+
+**Early stopping in optimization loops:** Halt ASW-based searches once solutions are provably close to optimal, saving time and resources.
+
+**Proxy for clusterability:** A low bound indicates limited potential for meaningful clusters, guiding analysts before heavy computation.
+
+**Outlier detection:** Pointwise upper bounds flag observations that cannot fit well into any cluster.
+
+**Constraint-aware clustering:** Incorporate application constraints (e.g. minimal cluster size) via restricted bounds.
 
 ## Installation
 ```
@@ -52,7 +78,7 @@ if __name__ == '__main__':
 We evaluate the performance of the upper bound using synthetic datasets generated with `scikit-learn`’s `make_blobs()` [function](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_blobs.html). Each dataset is identified by a label of the form `n_samples`-`n_features`-`centers`-`cluster_std`, which corresponds to the parameters used in the data generation.
 
 The code that generates the results below can be found in 
-[`experiments/table1.py`](./experiments/table1.py).
+[`experiments/`](./experiments/table_asw_synthetic_data.py).
 
 | Dataset | KMeans ASW | ASW upper bound | Worst-case relative error |
 | --- | --- | --- | --- |

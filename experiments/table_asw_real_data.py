@@ -1,47 +1,90 @@
+"""
+This file generates a table comparing empirical ASW values with the upper bound for real datasets.
+
+Note:
+    - The real datasets are available at https://archive.ics.uci.edu/
+"""
+
 import utils
 
+logger = utils.get_logger(__name__)
 
-def table_row(dataset: str, metric: str):
 
-    print(f"\nDistance metric: {metric}")
+def table_row(dataset: str, metric: str, k_range: range = range(2, 31)):
+
+    logger.info(f"\nDistance metric: {metric}")
+
+    # Prepare data
 
     if dataset == "conference_papers":
-        data = utils.get_data(dataset=dataset, transpose=True)
+        data = utils.load_unlabeled_data(dataset=dataset, transpose=True)
     else:
-        data = utils.get_data(dataset=dataset)
+        data = utils.load_unlabeled_data(dataset=dataset)
 
     n = data.shape[0]
 
     ub_dict = utils.get_upper_bound(data=data, metric=metric)
 
+    dissimilarity_matrix = utils.data_to_distance_matrix(data=data, metric=metric)
+
     # Weighted
     if n > 1000:
-        weighted_dict = utils.hierarchical_optimized(
-            data=data, metric=metric, method="weighted", t_range=range(2, 51)
+        weighted_dict = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=dissimilarity_matrix,
+            k_range=k_range,
+            asw_metric="precomputed",
+            method="weighted",
         )
     else:
-        weighted_dict = utils.hierarchical_optimized(
-            data=data, metric=metric, method="weighted", t_range=range(2, n)
+        weighted_dict = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=dissimilarity_matrix,
+            k_range=range(2, n + 1),
+            asw_metric="precomputed",
+            method="weighted",
         )
 
     # Single
     if n > 1000:
-        single_dict = utils.hierarchical_optimized(
-            data=data, metric=metric, method="single", t_range=range(2, 51)
+        single_dict = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=dissimilarity_matrix,
+            k_range=k_range,
+            asw_metric="precomputed",
+            method="single",
         )
     else:
-        single_dict = utils.hierarchical_optimized(
-            data=data, metric=metric, method="single", t_range=range(2, n)
+        single_dict = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=dissimilarity_matrix,
+            k_range=range(2, n + 1),
+            asw_metric="precomputed",
+            method="single",
         )
 
     # Kmeans
     if metric == "euclidean":
-        kmeans_dict = utils.kmeans_optimized(data=data, k_range=range(2, 51))
+        kmeans_dict = utils.asw_optimization(
+            algorithm=utils.algorithm_kmeans,
+            data=data,
+            k_range=k_range,
+            asw_metric=metric,
+        )
         kmeans_str = f"${kmeans_dict['best_score']:.3f}$ ({len(utils.Counter(kmeans_dict['best_labels']))})"
     else:
         kmeans_dict = {"best_score": "N/A"}
         kmeans_str = "N/A"
 
+    # Kmedoids
+    kmedoids_dict = utils.asw_optimization(
+        algorithm=utils.algorithm_kmedoids,
+        data=dissimilarity_matrix,
+        k_range=k_range,
+        asw_metric="precomputed",
+    )
+
+    kmedoids_str = f"${kmedoids_dict['best_score']:.3f}$ ({len(utils.Counter(kmedoids_dict['best_labels']))})"
     weighted_str = f"${weighted_dict['best_score']:.3f}$ ({len(utils.Counter(weighted_dict['best_labels']))})"
     single_str = f"${single_dict['best_score']:.3f}$ ({len(utils.Counter(single_dict['best_labels']))})"
 
@@ -51,6 +94,7 @@ def table_row(dataset: str, metric: str):
         weighted_str,
         single_str,
         kmeans_str,
+        kmedoids_str,
         ub_dict["ub"],
         ub_dict["min"],
         ub_dict["max"],
@@ -68,6 +112,7 @@ def table(dataset_metric: list):
         "Hierarchical weighted",
         "Hierarchical single",
         "KMeans",
+        "KMedoids",
         "UB(D)",
         "minUB(D)",
         "maxUB(D)",

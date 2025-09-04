@@ -1,12 +1,17 @@
+"""
+This file generates a figure showing empirical ASW values for different number of clusters K for a synthetic dataset.
+"""
+
 import numpy as np
 from silhouette_upper_bound import upper_bound_samples
 from sklearn.datasets import make_blobs
-from sklearn.metrics import pairwise_distances
-from utils import kmeans_optimized, hierarchical_optimized
+import utils
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import pandas as pd
 import seaborn as sns
+
+logger = utils.get_logger(__name__)
 
 
 def graph(params):
@@ -22,7 +27,7 @@ def graph(params):
         cluster_std=cluster_std,
         random_state=0,
     )
-    D = pairwise_distances(X)
+    D = utils.data_to_distance_matrix(data=X, metric="euclidean")
     ref = np.mean(upper_bound_samples(D=D))
 
     ref_80 = np.mean(upper_bound_samples(D=D, kappa=80))
@@ -32,34 +37,57 @@ def graph(params):
     silh_list = []
     single_list = []
     weighted_list = []
+    kmedoids_list = []
 
     for k in range(2, 21):
 
         # Kmeans
-        kmeans_scores = kmeans_optimized(data=X, k_range=range(k, k + 1), n_init=10)[
-            "best_scores"
-        ]
+        kmeans_score = utils.asw_optimization(
+            algorithm=utils.algorithm_kmeans,
+            data=X,
+            k_range=range(k, k + 1),
+            asw_metric="euclidean",
+            n_init=10,
+        )["best_score"]
 
         # Single
-        single_scores = hierarchical_optimized(
-            data=X, metric="euclidean", method="single", t_range=range(k, k + 1)
-        )["best_scores"]
+        single_score = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=D,
+            k_range=range(k, k + 1),
+            asw_metric="precomputed",
+            method="single",
+        )["best_score"]
 
         # Weighted
-        weighted_scores = hierarchical_optimized(
-            data=X, metric="euclidean", method="weighted", t_range=range(k, k + 1)
-        )["best_scores"]
+        weighted_score = utils.asw_optimization(
+            algorithm=utils.algorithm_hierarchical,
+            data=D,
+            k_range=range(k, k + 1),
+            asw_metric="precomputed",
+            method="weighted",
+        )["best_score"]
+
+        # Kmedoids
+        kmedoids_score = utils.asw_optimization(
+            algorithm=utils.algorithm_kmedoids,
+            data=D,
+            k_range=range(k, k + 1),
+            asw_metric="precomputed",
+        )["best_score"]
 
         k_list.append(k)
-        silh_list.append(np.mean(kmeans_scores))
-        single_list.append(np.mean(single_scores))
-        weighted_list.append(np.mean(weighted_scores))
+        silh_list.append(kmeans_score)
+        single_list.append(single_score)
+        weighted_list.append(weighted_score)
+        kmedoids_list.append(kmedoids_score)
 
     # Put data into a tidy DataFrame for seaborn
     df = pd.DataFrame(
         {
             "K": k_list,
             "KMeans Silhouette": silh_list,
+            "PAMSIL Silhouette": kmedoids_list,
             "Weighted-Linkage Silhouette": weighted_list,
             "Single-Linkage Silhouette": single_list,
         }
@@ -70,6 +98,7 @@ def graph(params):
         id_vars="K",
         value_vars=[
             "KMeans Silhouette",
+            "PAMSIL Silhouette",
             "Weighted-Linkage Silhouette",
             "Single-Linkage Silhouette",
         ],
@@ -88,13 +117,13 @@ def graph(params):
         hue="Method",
         style="Method",
         markers=True,
-        dashes=False,
+        dashes=True,
         linewidth=2.5,
     )
 
     # Reference lines
-    print(f"Upper bound = {ref}")
-    print(f"Upper bound (kappa 80) = {ref_80}")
+    logger.info(f"Upper bound = {ref}")
+    logger.info(f"Upper bound (kappa 80) = {ref_80}")
     plt.axhline(
         y=ref, color="black", linestyle="--", linewidth=1.5, label=f"Upper bound"
     )
