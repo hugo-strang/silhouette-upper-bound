@@ -1,4 +1,4 @@
-![Tests](https://github.com/<YOUR_USERNAME>/<YOUR_REPO>/actions/workflows/tests.yml/badge.svg?branch=main)
+![Tests](https://github.com/hugo-strang/silhouette-upper-bound/actions/workflows/tests.yml/badge.svg?branch=main)
 
 # Silhouette Upper Bound
 An upper bound of the [Average Silhouette Width](https://en.wikipedia.org/wiki/Silhouette_(clustering)).
