@@ -4,6 +4,7 @@ from silhouette_upper_bound import upper_bound, upper_bound_samples
 from sklearn.cluster import KMeans
 from sklearn.datasets import make_blobs
 from sklearn.metrics import silhouette_score, silhouette_samples, pairwise_distances
+import kmedoids
 
 
 def test_basic():
@@ -57,11 +58,45 @@ def test_basic():
     assert np.abs(upper_bound(d3) - np.mean(1 - d3f)) < 1e-15
 
 
+def _test_helper(D: np.ndarray, score: float, score_samples: np.ndarray, labels: np.ndarray):
+
+    # 1. Test standard upper bound
+    ub = upper_bound(D)
+
+    assert 0 <= ub and ub <= 1
+    assert ub - score >= -1e-15
+
+    # 2. Test each sample
+    ub_samples = upper_bound_samples(D)
+    assert np.all(0 <= ub_samples) and np.all(ub_samples <= 1)
+    assert np.all(ub_samples - score_samples >= -1e-15)
+
+    # Upper bound with kappa > 1 (constraint on smallest cluster size)
+    min_cluster_size = np.bincount(labels).min()
+
+    if min_cluster_size > 1:
+
+        # 3. Test restricted upper bound
+        ub_kappa = upper_bound(D, kappa=min_cluster_size)
+
+        assert 0 <= ub_kappa and ub_kappa <= 1
+        assert ub_kappa - score >= -1e-15
+
+        # 4. Test each sample for restricted upper bound
+        ub_kappa_samples = upper_bound_samples(D, kappa=min_cluster_size)
+        assert np.all(0 <= ub_kappa_samples) and np.all(ub_kappa_samples <= 1)
+        assert np.all(ub_kappa_samples - score_samples >= -1e-15)
+
+        # 5. Check that restricted bound is not greater than standard bounds
+        assert ub_kappa <= ub
+
+
+
 @pytest.mark.parametrize("n_samples", [100, 200, 300, 400, 500])
 @pytest.mark.parametrize("n_features", [10, 15, 20])
 @pytest.mark.parametrize("centers", [3, 6, 9])
-@pytest.mark.parametrize("cluster_std", [1.0, 2.0, 3.0])
-def test_blobs(n_samples, n_features, centers, cluster_std):
+@pytest.mark.parametrize("cluster_std", [1.0, 2.0, 3.0, 10.0])
+def test_blobs_kmeans(n_samples, n_features, centers, cluster_std):
     X, _ = make_blobs(
         n_samples=n_samples,
         n_features=n_features,
@@ -76,30 +111,35 @@ def test_blobs(n_samples, n_features, centers, cluster_std):
     model = KMeans(n_clusters=centers, random_state=42, n_init="auto")
     labels = model.fit_predict(X)
     score = silhouette_score(X, labels)
-
-    # Test standard upper bound
-    ub = upper_bound(D)
-
-    assert 0 <= ub and ub <= 1
-    assert ub - score >= -1e-15
-
-    # Test each sample
     score_samples = silhouette_samples(X, labels)
-    ub_samples = upper_bound_samples(D)
-    assert np.all(0 <= ub_samples) and np.all(ub_samples <= 1)
-    assert np.all(ub_samples - score_samples >= -1e-15)
 
-    # Upper bound with kappa > 1
-    min_cluster_size = np.bincount(labels).min()
+    _test_helper(D=D, score=score, score_samples=score_samples, labels=labels)
 
-    if min_cluster_size > 1:
+    
 
-        ub_kappa = upper_bound(D, kappa=min_cluster_size)
+@pytest.mark.parametrize("metric", ["euclidean", "manhattan", "chebyshev"])
+@pytest.mark.parametrize("n_samples", [100, 200, 300, 400, 500])
+@pytest.mark.parametrize("n_features", [10, 15, 20])
+@pytest.mark.parametrize("centers", [3, 6, 9])
+@pytest.mark.parametrize("cluster_std", [1.0, 2.0, 3.0, 10.0])
+def test_blobs_kmedoids(metric, n_samples, n_features, centers, cluster_std):
+    X, _ = make_blobs(
+        n_samples=n_samples,
+        n_features=n_features,
+        centers=centers,
+        cluster_std=cluster_std,
+        random_state=42,
+    )
 
-        assert 0 <= ub_kappa and ub_kappa <= 1
-        assert ub_kappa - score >= -1e-15
+    D = pairwise_distances(X, metric=metric)
 
-        # Test each sample
-        ub_kappa_samples = upper_bound_samples(D, kappa=min_cluster_size)
-        assert np.all(0 <= ub_kappa_samples) and np.all(ub_kappa_samples <= 1)
-        assert np.all(ub_kappa_samples - score_samples >= -1e-15)
+    # KMeans clustering
+    labels = (
+            kmedoids.fastmsc(diss=D, medoids=centers, random_state=42).labels + 1
+        )
+    score = silhouette_score(X=D, labels=labels, metric="precomputed")
+    score_samples = silhouette_samples(X=D, labels=labels, metric="precomputed")
+
+    _test_helper(D=D, score=score, score_samples=score_samples, labels=labels)
+
+
