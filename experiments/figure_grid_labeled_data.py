@@ -149,7 +149,7 @@ print("Silhouette grid plot generated!")
 plt.close()
 
 # -------------------------------------------------
-# 3. Plot grid with box plots
+# 3. Plot grid with violin plots
 # -------------------------------------------------
 n = len(datasets)
 rows, cols = 3, 4
@@ -166,17 +166,22 @@ for i, dataset in enumerate(datasets):
     kappas = sorted(ub_samples_dict.keys())
     data = [ub_samples_dict[kappa] for kappa in kappas]
 
-    # Create prettier boxplot
-    bp = ax.boxplot(
+    vp = ax.violinplot(
         data,
         positions=range(len(kappas)),
-        patch_artist=True,  # allows coloring
-        boxprops=dict(facecolor="lightblue", color="navy"),
-        medianprops=dict(color="red", linewidth=2),
-        whiskerprops=dict(color="navy"),
-        capprops=dict(color="navy"),
-        flierprops=dict(markerfacecolor="gray", markersize=3, linestyle="none"),
+        showmeans=True
     )
+
+    # --- Prettify violins ---
+    for body in vp['bodies']:
+        body.set_facecolor("#87CEFA")   # soft blue
+        body.set_edgecolor("black")
+        body.set_alpha(0.7)
+
+    # --- Style the mean lines (default black → red) ---
+    if 'cmeans' in vp:
+        vp['cmeans'].set_color("red")
+        vp['cmeans'].set_linewidth(2)
 
     ax.set_xticks(range(len(kappas)))
     ax.set_xticklabels(kappas, rotation=30, fontsize=12)
@@ -192,5 +197,5 @@ for i, dataset in enumerate(datasets):
 
 
 plt.tight_layout()
-plt.savefig("boxes_grid.pdf", bbox_inches="tight")
-print("Box grid plot generated!")
+plt.savefig("violin_grid.pdf", bbox_inches="tight")
+print("Violin grid plot generated!")
