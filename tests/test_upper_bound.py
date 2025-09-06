@@ -58,7 +58,9 @@ def test_basic():
     assert np.abs(upper_bound(d3) - np.mean(1 - d3f)) < 1e-15
 
 
-def _test_helper(D: np.ndarray, score: float, score_samples: np.ndarray, labels: np.ndarray):
+def _test_helper(
+    D: np.ndarray, score: float, score_samples: np.ndarray, labels: np.ndarray
+):
 
     # 1. Test standard upper bound
     ub = upper_bound(D)
@@ -91,7 +93,6 @@ def _test_helper(D: np.ndarray, score: float, score_samples: np.ndarray, labels:
         assert ub_kappa <= ub
 
 
-
 @pytest.mark.parametrize("n_samples", [100, 200, 300, 400, 500])
 @pytest.mark.parametrize("n_features", [10, 15, 20])
 @pytest.mark.parametrize("centers", [3, 6, 9])
@@ -115,7 +116,6 @@ def test_blobs_kmeans(n_samples, n_features, centers, cluster_std):
 
     _test_helper(D=D, score=score, score_samples=score_samples, labels=labels)
 
-    
 
 @pytest.mark.parametrize("metric", ["euclidean", "manhattan", "chebyshev"])
 @pytest.mark.parametrize("n_samples", [100, 200, 300, 400, 500])
@@ -134,12 +134,8 @@ def test_blobs_kmedoids(metric, n_samples, n_features, centers, cluster_std):
     D = pairwise_distances(X, metric=metric)
 
     # KMeans clustering
-    labels = (
-            kmedoids.fastmsc(diss=D, medoids=centers, random_state=42).labels + 1
-        )
+    labels = kmedoids.fastmsc(diss=D, medoids=centers, random_state=42).labels + 1
     score = silhouette_score(X=D, labels=labels, metric="precomputed")
     score_samples = silhouette_samples(X=D, labels=labels, metric="precomputed")
 
     _test_helper(D=D, score=score, score_samples=score_samples, labels=labels)
-
-

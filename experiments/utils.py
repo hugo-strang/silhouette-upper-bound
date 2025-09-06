@@ -15,7 +15,7 @@ import os
 from typing import Callable
 import logging
 from logging import Logger
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 
 # =======
 # Logging
@@ -48,7 +48,9 @@ logger = get_logger(__name__)
 # ==========
 
 
-def algorithm_kmeans(data: np.ndarray, k: int, random_state=42, n_init="auto") -> np.ndarray:
+def algorithm_kmeans(
+    data: np.ndarray, k: int, random_state=42, n_init="auto"
+) -> np.ndarray:
     """
     Apply kmeans to data.
 
@@ -331,11 +333,10 @@ def load_arff_as_distance_matrix(path, metric="euclidean", scale=False):
 # Plotting
 # ========
 
+
 def get_silhouette_plot_data(labels, scores, n_clusters, ub_samples):
 
-    data = {
-        i : {} for i in range(1, n_clusters + 1)
-    }
+    data = {i: {} for i in range(1, n_clusters + 1)}
 
     y_lower = 10
     for i in data.keys():
@@ -355,14 +356,14 @@ def get_silhouette_plot_data(labels, scores, n_clusters, ub_samples):
 
         color = plt.cm.viridis(float(i) / n_clusters)
 
-        data[i]['y_lower'] = y_lower
-        data[i]['y_upper'] = y_upper 
-        data[i]['sorted_silhouettes'] = sorted_silhouettes
-        data[i]['color'] = color
-        data[i]['sorted_ub_values'] = sorted_ub_values
-        data[i]['size_cluster_i'] = size_cluster_i
+        data[i]["y_lower"] = y_lower
+        data[i]["y_upper"] = y_upper
+        data[i]["sorted_silhouettes"] = sorted_silhouettes
+        data[i]["color"] = color
+        data[i]["sorted_ub_values"] = sorted_ub_values
+        data[i]["size_cluster_i"] = size_cluster_i
 
         # update y_lower
         y_lower = y_upper + 10
-    
-    return data 
+
+    return data

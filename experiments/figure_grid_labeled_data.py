@@ -1,14 +1,19 @@
 """
 This file generates figures that show individual silhouette widths compared to their corresponding upper bounds for labeled datasets.
 
-Notes: 
+Notes:
     - The labeled datasets are available at https://github.com/deric/clustering-benchmark/tree/master/src/main/resources/datasets/real-world
 """
 
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from utils import load_arff_as_distance_matrix, asw_optimization, algorithm_kmedoids, get_silhouette_plot_data
+from utils import (
+    load_arff_as_distance_matrix,
+    asw_optimization,
+    algorithm_kmedoids,
+    get_silhouette_plot_data,
+)
 from silhouette_upper_bound import upper_bound, upper_bound_samples
 from collections import Counter
 
@@ -69,7 +74,7 @@ for i, dataset in enumerate(datasets):
         dataset["X_plot"],
         dataset["D"],
         dataset["y"],
-        dataset["ub_asw"]
+        dataset["ub_asw"],
     )
     ax = axes[i]
 
@@ -86,11 +91,9 @@ for i, dataset in enumerate(datasets):
         k_range = range(2, 13)
 
     # Generate clustering through kmedoids
-    _kmedoids_optimized = asw_optimization(algorithm=algorithm_kmedoids,
-                                             data=D,
-                                             k_range=k_range,
-                                             asw_metric="precomputed"
-                                             )
+    _kmedoids_optimized = asw_optimization(
+        algorithm=algorithm_kmedoids, data=D, k_range=k_range, asw_metric="precomputed"
+    )
     kmedoids_scores = _kmedoids_optimized["best_scores"]
     kmedoids_labels = _kmedoids_optimized["best_labels"]
 
@@ -101,32 +104,34 @@ for i, dataset in enumerate(datasets):
 
     y = kmedoids_labels
 
-    data = get_silhouette_plot_data(kmedoids_labels, kmedoids_scores, n_clusters, ub_samples)
+    data = get_silhouette_plot_data(
+        kmedoids_labels, kmedoids_scores, n_clusters, ub_samples
+    )
 
     for x in data.keys():
 
         # Cluster Silhouette scores
         ax.fill_betweenx(
-            np.arange(data[x]['y_lower'], data[x]['y_upper']),
+            np.arange(data[x]["y_lower"], data[x]["y_upper"]),
             0,
-            data[x]['sorted_silhouettes'],
-            facecolor=data[x]['color'],
-            edgecolor='black',
+            data[x]["sorted_silhouettes"],
+            facecolor=data[x]["color"],
+            edgecolor="black",
             alpha=0.8,
         )
 
         # Cluster Silhouette bounds
         ax.fill_betweenx(
-            np.arange(data[x]['y_lower'], data[x]['y_upper']),
+            np.arange(data[x]["y_lower"], data[x]["y_upper"]),
             0,
-            data[x]['sorted_ub_values'],
-            facecolor=data[x]['color'],
-            edgecolor=data[x]['color'],
+            data[x]["sorted_ub_values"],
+            facecolor=data[x]["color"],
+            edgecolor=data[x]["color"],
             alpha=0.5,
         )
 
         # Label cluster number
-        ax.text(-0.05, data[x]['y_lower'] + 0.5 * data[x]['size_cluster_i'], str(x))
+        ax.text(-0.05, data[x]["y_lower"] + 0.5 * data[x]["size_cluster_i"], str(x))
 
     ax.axvline(
         ub_asw, color="black", linestyle="--", label=rf"upper bound ($\kappa$={1})"
@@ -166,22 +171,18 @@ for i, dataset in enumerate(datasets):
     kappas = sorted(ub_samples_dict.keys())
     data = [ub_samples_dict[kappa] for kappa in kappas]
 
-    vp = ax.violinplot(
-        data,
-        positions=range(len(kappas)),
-        showmeans=True
-    )
+    vp = ax.violinplot(data, positions=range(len(kappas)), showmeans=True)
 
     # --- Prettify violins ---
-    for body in vp['bodies']:
-        body.set_facecolor("#87CEFA")   # soft blue
+    for body in vp["bodies"]:
+        body.set_facecolor("#87CEFA")  # soft blue
         body.set_edgecolor("black")
         body.set_alpha(0.7)
 
     # --- Style the mean lines (default black → red) ---
-    if 'cmeans' in vp:
-        vp['cmeans'].set_color("red")
-        vp['cmeans'].set_linewidth(2)
+    if "cmeans" in vp:
+        vp["cmeans"].set_color("red")
+        vp["cmeans"].set_linewidth(2)
 
     ax.set_xticks(range(len(kappas)))
     ax.set_xticklabels(kappas, rotation=30, fontsize=12)
