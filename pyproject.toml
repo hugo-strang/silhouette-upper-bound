@@ -20,7 +20,7 @@ license-files = ["LICEN[CS]E*"]
 homepage = "https://github.com/hugo-strang/silhouette-upper-bound"
 
 [project.optional-dependencies]
-tests = ["pytest", "scikit-learn", "kmedoids"]
+tests = ["pytest", "scikit-learn", "kmedoids", "pytest-cov"]
 examples = ["matplotlib", "tqdm", "pandas", "seaborn"]
 dev = ["black"]
 
