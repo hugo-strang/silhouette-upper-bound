@@ -25,6 +25,8 @@ This project introduces a data-dependent upper bound on the ASW that hopefully c
 
 To compute the upper bound, the method requires a dissimilarity matrix as input.
 
+You can find more details in this arXiv [preprint](https://arxiv.org/abs/2509.08625).
+
 ## Use Cases
 
 The proposed data-dependent upper bound on the Average Silhouette Width (ASW) opens up opportunities for both research and industry applications.
