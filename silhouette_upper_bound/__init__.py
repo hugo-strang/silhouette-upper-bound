@@ -34,23 +34,22 @@ def upper_bound_samples(D: np.ndarray, kappa: int | Iterable = 1) -> np.ndarray:
     if n < 4:
         raise ValueError("Matrix must be at least of size 4x4.")
 
-    if isinstance(kappa, (int, np.int64)):  # kappa integer
+    if isinstance(kappa, (int, np.integer)):  # kappa integer
         if kappa < 1 or kappa > n // 2:
             raise ValueError("The parameter kappa is out of range.")
         per_row_computation = _row_f
-    else:  # kappa iterable
+    elif isinstance(kappa, Iterable):  # kappa iterable
         if sum(kappa) != n:
             raise ValueError("There is a mismatch in input and number of datapoints.")
         elif len(kappa) < 2:
             raise ValueError("Number of clusters is smaller than two.")
-        elif not isinstance(kappa, Iterable):
-            raise ValueError("Wrong input type.")
         per_row_computation = _row_f_given_list
-
         typed_kappa = List()
         [typed_kappa.append(delta) for delta in kappa]
 
         kappa = typed_kappa
+    else:
+        raise ValueError("Wrong input type.")
 
     # Compute bounds
     bounds = np.apply_along_axis(
@@ -102,7 +101,7 @@ def upper_bound_macro_silhouette(D: np.ndarray, cluster_sizes: Iterable) -> floa
 
     _sum = 0
 
-    cluster_sizes.sort(reverse=True)
+    cluster_sizes = sorted(cluster_sizes, reverse=True)
 
     id_counter = 0
     for cluster_size in cluster_sizes:

@@ -11,11 +11,11 @@ import csv
 
 
 # Only write CSV if explicitly enabled
-LOCAL_REPORT = os.getenv("LOCAL_REPORT", "0") == "1"
+CSV_REPORT = os.getenv("CSV_REPORT", "0") == "1"
 REPORT_FILE = "results/test_report_standard_silhouette.csv"
 
 # If enabled, prepare the file with a header
-if LOCAL_REPORT:
+if CSV_REPORT:
     with open(REPORT_FILE, mode="w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(
@@ -121,8 +121,8 @@ def _test_helper(
         # 5. Check that restricted bound is not greater than standard bounds
         assert ub - ub_kappa >= -1e-15
 
-    # --- Local CSV reporting (only if LOCAL_REPORT=1) ---
-    if LOCAL_REPORT:
+    # --- Local CSV reporting (only if CSV_REPORT=1) ---
+    if CSV_REPORT:
         with open(REPORT_FILE, mode="a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(
