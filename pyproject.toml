@@ -1,6 +1,6 @@
 [project]
 name = "silhouette-upper-bound"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
   { name="Hugo Sträng", email="hugo.strang2@gmail.com" },
 ]
