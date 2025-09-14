@@ -79,7 +79,7 @@ def test_blobs_kmeans(n_samples, n_features, centers, cluster_std):
 
     assert ub - score >= -1e-15
 
-    # --- Local CSV reporting (only if CSV_REPORT=1) ---
+    # --- CSV reporting (only if CSV_REPORT=1) ---
     if CSV_REPORT:
         with open(REPORT_FILE, mode="a", newline="") as f:
             writer = csv.writer(f)

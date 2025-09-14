@@ -121,7 +121,7 @@ def _test_helper(
         # 5. Check that restricted bound is not greater than standard bounds
         assert ub - ub_kappa >= -1e-15
 
-    # --- Local CSV reporting (only if CSV_REPORT=1) ---
+    # --- CSV reporting (only if CSV_REPORT=1) ---
     if CSV_REPORT:
         with open(REPORT_FILE, mode="a", newline="") as f:
             writer = csv.writer(f)
