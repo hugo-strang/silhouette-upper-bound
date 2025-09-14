@@ -91,6 +91,32 @@ def upper_bound(D: np.ndarray, kappa: int | Iterable = 1) -> float:
 
 
 def upper_bound_macro_silhouette(D: np.ndarray, cluster_sizes: Iterable) -> float:
+    """
+    Compute an upper bound of the macro-averaged silhouette. The upper bound ranges from 0 to 1.
+
+    Parameters
+    ----------
+    D: np.ndarray
+        Square matrix of pairwise distances (or dissimilarities) (shape: [n_samples, n_samples]).
+    cluster_sizes: Iterable
+        Fixed cluster sizes that define our constrained solution space.
+
+    Returns
+    -------
+    float
+        An upper bound of the macro-averaged silhouette.
+
+    Notes
+    -----
+    We emphasize that the upper bound is not guaranteed to be close to the true macro-silhouette-maximum.
+    Comparison with outputs from suitable clustering algorithms is advised. 
+    Moreover, the upper bound covers only clusterings with cluster sizes matching the given input. 
+
+    References
+    ----------
+    .. [1] Silhouette (clustering). Wikipedia. https://en.wikipedia.org/wiki/Silhouette_(clustering)
+    .. [2] Revisiting Silhouette Aggregation. arXiv. https://arxiv.org/abs/2401.05831
+    """
 
     if not isinstance(cluster_sizes, Iterable):
         raise ValueError("Wrong input type.")
