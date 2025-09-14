@@ -47,6 +47,12 @@ The proposed data-dependent upper bound on the Average Silhouette Width (ASW) op
 
 **Constraint-aware clustering:** Incorporate application constraints (e.g. minimal cluster size) via restricted bounds.
 
+### Extension to other clustering quality measures
+In practical scenarios where clusters are imbalanced and small groups also matter, the so called *macro-averaged silhouette* (see [this article](https://arxiv.org/abs/2401.05831)) might be more favorable compared to the standard ASW. The macro-silhouette averages first at the cluster level and then across clusters. 
+
+In this project we implement an upper bound of this silhouette variant in a solution space that is constrained by fixed cluster sizes.
+
+
 ## Installation
 ```
 pip install silhouette-upper-bound
@@ -92,6 +98,8 @@ The code that generates the results below can be found in
 | 1000-161-2-13 | 0.084 | 0.182 | 0.54 |
 
 Note that the upper bound confirms global optimality for KMeans on dataset 400-64-2-2.
+
+More comprehensive results on synthetic datasets are available in [`results/`](./results/).
 
 ## Contribution
 

@@ -1,4 +1,5 @@
 import numpy as np
+from collections.abc import Iterable
 from numba import njit
 
 
@@ -35,6 +36,37 @@ def _row_f(row: np.ndarray, kappa: int, n: int) -> float:
 
         x += d_to_move
         y -= d_to_move
+
+        q_candidate = (x / (delta - 1)) / (y / (n - delta))
+
+        if q_candidate < q:
+            q = q_candidate
+
+    return 1 - q
+
+
+@njit
+def _row_f_given_list(row: np.ndarray, kappa: Iterable, n: int) -> float:
+
+    kappa = list(set(kappa))
+
+    kappa.sort()
+
+    kappa_init = kappa[0]
+
+    y = np.sum(row[kappa_init - 1 :])
+    # Initialize q
+    if kappa_init == 1:
+        x = 0
+        q = 1
+    else:
+        x = np.sum(row[: kappa_init - 1])
+        q = (x / (kappa_init - 1)) / (y / (n - kappa_init))
+
+    for delta in kappa[1:]:
+
+        x = np.sum(row[: delta - 1])
+        y = np.sum(row[delta - 1 :])
 
         q_candidate = (x / (delta - 1)) / (y / (n - delta))
 

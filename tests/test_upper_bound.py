@@ -4,7 +4,34 @@ from silhouette_upper_bound import upper_bound, upper_bound_samples
 from sklearn.cluster import KMeans
 from sklearn.datasets import make_blobs
 from sklearn.metrics import silhouette_score, silhouette_samples, pairwise_distances
+from collections import Counter
 import kmedoids
+import os
+import csv
+
+
+# Only write CSV if explicitly enabled
+CSV_REPORT = os.getenv("CSV_REPORT", "0") == "1"
+REPORT_FILE = "results/test_report_standard_silhouette.csv"
+
+# If enabled, prepare the file with a header
+if CSV_REPORT:
+    with open(REPORT_FILE, mode="w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(
+            [
+                "method",
+                "metric",
+                "n_samples",
+                "n_features",
+                "centers",
+                "cluster_std",
+                "ASW",
+                "UB",
+                "UB-Score",
+                "Wors-case relative error",
+            ]
+        )
 
 
 def test_basic():
@@ -59,7 +86,7 @@ def test_basic():
 
 
 def _test_helper(
-    D: np.ndarray, score: float, score_samples: np.ndarray, labels: np.ndarray
+    D: np.ndarray, score: float, score_samples: np.ndarray, labels: np.ndarray, *args
 ):
 
     # 1. Test standard upper bound
@@ -74,7 +101,9 @@ def _test_helper(
     assert np.all(ub_samples - score_samples >= -1e-15)
 
     # Upper bound with kappa > 1 (constraint on smallest cluster size)
-    min_cluster_size = np.bincount(labels).min()
+    min_cluster_size = min(Counter(labels).values())
+
+    assert min_cluster_size > 0
 
     if min_cluster_size > 1:
 
@@ -90,7 +119,21 @@ def _test_helper(
         assert np.all(ub_kappa_samples - score_samples >= -1e-15)
 
         # 5. Check that restricted bound is not greater than standard bounds
-        assert ub_kappa <= ub
+        assert ub - ub_kappa >= -1e-15
+
+    # --- CSV reporting (only if CSV_REPORT=1) ---
+    if CSV_REPORT:
+        with open(REPORT_FILE, mode="a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(
+                list(args)
+                + [
+                    "{:.5f}".format(score),
+                    "{:.5f}".format(ub),
+                    "{:.5f}".format(ub - score),
+                    format((ub - score) / ub, ".0%"),
+                ]
+            )
 
 
 @pytest.mark.parametrize("n_samples", [100, 200, 300, 400, 500])
@@ -114,7 +157,18 @@ def test_blobs_kmeans(n_samples, n_features, centers, cluster_std):
     score = silhouette_score(X, labels)
     score_samples = silhouette_samples(X, labels)
 
-    _test_helper(D=D, score=score, score_samples=score_samples, labels=labels)
+    _test_helper(
+        D,
+        score,
+        score_samples,
+        labels,
+        "kmeans",
+        "euclidean",
+        n_samples,
+        n_features,
+        centers,
+        cluster_std,
+    )
 
 
 @pytest.mark.parametrize("metric", ["euclidean", "manhattan", "chebyshev"])
@@ -133,9 +187,90 @@ def test_blobs_kmedoids(metric, n_samples, n_features, centers, cluster_std):
 
     D = pairwise_distances(X, metric=metric)
 
-    # KMeans clustering
+    # KMedoids clustering
     labels = kmedoids.fastmsc(diss=D, medoids=centers, random_state=42).labels + 1
     score = silhouette_score(X=D, labels=labels, metric="precomputed")
     score_samples = silhouette_samples(X=D, labels=labels, metric="precomputed")
 
-    _test_helper(D=D, score=score, score_samples=score_samples, labels=labels)
+    _test_helper(
+        D,
+        score,
+        score_samples,
+        labels,
+        "kmedoids",
+        metric,
+        n_samples,
+        n_features,
+        centers,
+        cluster_std,
+    )
+
+
+@pytest.mark.parametrize("n_samples", [2000])
+@pytest.mark.parametrize("n_features", [164])
+@pytest.mark.parametrize("centers", [3, 7])
+@pytest.mark.parametrize("cluster_std", [2.0, 3.0])
+def test_dense_blobs_kmeans(n_samples, n_features, centers, cluster_std):
+    X, _ = make_blobs(
+        n_samples=n_samples,
+        n_features=n_features,
+        centers=centers,
+        cluster_std=cluster_std,
+        random_state=42,
+    )
+
+    D = pairwise_distances(X)
+
+    # KMeans clustering
+    model = KMeans(n_clusters=centers, random_state=42, n_init="auto")
+    labels = model.fit_predict(X)
+    score = silhouette_score(X, labels)
+    score_samples = silhouette_samples(X, labels)
+
+    _test_helper(
+        D,
+        score,
+        score_samples,
+        labels,
+        "kmeans",
+        "euclidean",
+        n_samples,
+        n_features,
+        centers,
+        cluster_std,
+    )
+
+
+@pytest.mark.parametrize("metric", ["euclidean", "manhattan", "chebyshev"])
+@pytest.mark.parametrize("n_samples", [2000])
+@pytest.mark.parametrize("n_features", [164])
+@pytest.mark.parametrize("centers", [3, 7])
+@pytest.mark.parametrize("cluster_std", [2.0, 3.0])
+def test_dense_blobs_kmedoids(metric, n_samples, n_features, centers, cluster_std):
+    X, _ = make_blobs(
+        n_samples=n_samples,
+        n_features=n_features,
+        centers=centers,
+        cluster_std=cluster_std,
+        random_state=42,
+    )
+
+    D = pairwise_distances(X, metric=metric)
+
+    # KMedoids clustering
+    labels = kmedoids.fastmsc(diss=D, medoids=centers, random_state=42).labels + 1
+    score = silhouette_score(X=D, labels=labels, metric="precomputed")
+    score_samples = silhouette_samples(X=D, labels=labels, metric="precomputed")
+
+    _test_helper(
+        D,
+        score,
+        score_samples,
+        labels,
+        "kmedoids",
+        metric,
+        n_samples,
+        n_features,
+        centers,
+        cluster_std,
+    )
