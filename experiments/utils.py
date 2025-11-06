@@ -47,53 +47,15 @@ logger = get_logger(__name__)
 # Algorithms
 # ==========
 
+def algorithm_kmedoids(data: np.ndarray, k: int, random_state: int = 42, fast = False) -> np.ndarray:
 
-def algorithm_kmeans(
-    data: np.ndarray, k: int, random_state=42, n_init="auto"
-) -> np.ndarray:
-    """
-    Apply kmeans to data.
-
-    Parameters
-    ----------
-        data: np.ndarray
-            Shape n_samples x n_features.
-
-        k: int
-            Number of clusters.
-
-    Returns
-    -------
-        np.ndarray
-            Cluster labels
-    """
-
-    kmeans = KMeans(n_clusters=k, random_state=random_state, n_init=n_init)
-
-    return kmeans.fit_predict(data) + 1
-
-
-def algorithm_hierarchical(data: np.ndarray, k: int, method: str) -> np.ndarray:
-    """
-    ...
-    """
-
-    vector_form_data = squareform(
-        data, checks=False
-    )  # convert dissimilarity matrix to vector-form distance vector
-
-    return fcluster(linkage(vector_form_data, method=method), t=k, criterion="maxclust")
-
-
-def algorithm_kmedoids(data: np.ndarray, k: int, random_state: int = 42) -> np.ndarray:
-
-    if data.shape[0] < 1000:
+    if fast:
         cluster_labels = (
-            kmedoids.pamsil(diss=data, medoids=k, random_state=random_state).labels + 1
+            kmedoids.fastmsc(diss=data, medoids=k, random_state=random_state).labels + 1
         )
     else:
         cluster_labels = (
-            kmedoids.fastmsc(diss=data, medoids=k, random_state=random_state).labels + 1
+            kmedoids.pamsil(diss=data, medoids=k, random_state=random_state).labels + 1
         )
 
     return cluster_labels
@@ -164,8 +126,10 @@ def asw_optimization(
         "stopped_early": False,  # yes/no early stopping applied
     }
 
-    logger.info(f"Optimizing ASW")
-    for k in tqdm(k_range):
+    if len(k_range) > 1:
+        logger.info(f"Optimizing ASW")
+
+    for k in tqdm(k_range, disable=bool(len(k_range) == 1)):
 
         cluster_labels = algorithm(data, k, **kwargs)
 
@@ -242,93 +206,6 @@ def data_to_distance_matrix(data, metric, TOL=1e-10):
     return D
 
 
-def load_unlabeled_data(dataset: str, transpose: bool = False) -> np.ndarray:
-    """
-    Load unlabeled dataset.
-
-    Parameters
-    ----------
-        dataset: str
-            Should be 'ceramic', 'conference_papers', 'religious_papers' or 'rna'
-
-        transpose: bool
-            Should be True if data has shape n_features x n_samples (default is False).
-    """
-
-    path = f"data/unlabeled/{dataset}/data.csv"
-
-    logger.info(f"==== Running dataset: {dataset} ====\n")
-
-    df = pd.read_csv(path)
-
-    data = df.select_dtypes(include="number")
-
-    if transpose:
-        data = data.transpose()
-
-    logger.info(f"Data shape: {data.shape}")
-
-    data = data.to_numpy()
-
-    # Removing zero-vectors
-    non_zero_rows = ~np.all(data == 0, axis=1)
-
-    data = data[non_zero_rows]
-
-    logger.info(f"Data shape (zeros removed): {data.shape}")
-
-    return data
-
-
-def load_arff_as_distance_matrix(path, metric="euclidean", scale=False):
-    # Load
-    data, meta = arff.loadarff(path)
-    df = pd.DataFrame(data)
-    fname = os.path.basename(path).lower()
-
-    if "wdbc" in fname:
-        # First column is ID, second is label
-        y = df.iloc[:, 1].astype(str).to_numpy()
-        X = df.iloc[:, 2:].to_numpy()
-
-    elif "wine" in fname:
-        # Frst column is label
-        y = df.iloc[:, 0].astype(str).to_numpy()
-        X = df.iloc[:, 1:].to_numpy()
-
-    elif "yeast" in fname:
-        # Frst column is ID
-        y = df.iloc[:, -1].astype(str).to_numpy()
-        X = df.iloc[:, 1:].to_numpy()
-
-    elif "mopsi-joensuu" in fname:
-        # Frst column is ID
-        y = np.zeros(df.shape[0])
-        X = df.iloc[:, :].to_numpy()
-
-    else:
-        # Last column is label
-        y = df.iloc[:, -1].astype(str).to_numpy()
-        X = df.iloc[:, :-1].to_numpy()
-
-    # Replace missing values ("?")
-    X = np.where(X == b"?", np.nan, X).astype(float)
-    col_means = np.nanmean(X, axis=0)
-    inds = np.where(np.isnan(X))
-    X[inds] = np.take(col_means, inds[1])
-
-    if scale:
-        X = StandardScaler().fit_transform(X)
-
-    # Remove potential zero vecs
-    X = X[~np.all(np.isclose(X, 0, atol=1e-12), axis=1)]
-
-    # Distance matrix
-    D = squareform(pdist(X, metric=metric))
-
-    return D, X, y
-
-
 # ========
 # Plotting
 # ========
@@ -367,3 +244,23 @@ def get_silhouette_plot_data(labels, scores, n_clusters, ub_samples):
         y_lower = y_upper + 10
 
     return data
+
+
+# ========
+# Macro silhouette
+# ========
+
+def _macro_averaged_silhouette(dissimilarity_matrix, labels):
+
+    silhouette_scores = silhouette_samples(
+        X=dissimilarity_matrix, labels=labels, metric="precomputed"
+    )
+
+    mac_silh = []
+
+    for cluster_id in np.unique(labels):
+        scores = silhouette_scores[labels == cluster_id]
+
+        mac_silh.append(np.mean(scores))
+
+    return np.mean(mac_silh)

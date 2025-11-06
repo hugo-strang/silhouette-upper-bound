@@ -173,8 +173,9 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-# csv files for experiments
+# experiment folders
 experiments/data/
+experiments/results/
 
 # pdf files 
 *.pdf
@@ -184,3 +185,6 @@ experiments/data/
 
 # DS_Store
 .*DS_Store
+
+# npy
+*.npy

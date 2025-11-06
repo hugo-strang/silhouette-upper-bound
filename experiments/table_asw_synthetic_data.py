@@ -6,33 +6,7 @@ from sklearn.datasets import make_blobs
 import utils
 
 
-def table(rows):
-
-    headers = [
-        "Dataset",
-        "Metric",
-        "Hierarchical weighted",
-        "Hierarchical single",
-        "KMeans",
-        "Upper bound",
-        "Min",
-        "Max",
-    ]
-
-    # Format header
-    header_line = "| " + " | ".join(headers) + " |"
-    separator = "| " + " | ".join(["---"] * len(headers)) + " |"
-
-    print(header_line)
-    print(separator)
-
-    # Format rows
-    for row in rows:
-
-        print(" & ".join(f"${str(cell)}$" for cell in row) + " \\\ ")
-
-
-def table_row(params, k_range: range = range(2, 26)):
+def table_row(params):
 
     n_samples, n_features, centers, cluster_std = params
     # Generate synthetic data
@@ -48,56 +22,23 @@ def table_row(params, k_range: range = range(2, 26)):
     # Compute upper bound
     ub_dict = utils.get_upper_bound(data=X, metric="euclidean")
 
-    # Weigthed
-    weighted_dict = utils.asw_optimization(
-        algorithm=utils.algorithm_hierarchical,
-        data=D,
-        k_range=k_range,
-        asw_metric="precomputed",
-        method="weighted",
-    )
-
-    # Single
-    single_dict = utils.asw_optimization(
-        algorithm=utils.algorithm_hierarchical,
-        data=D,
-        k_range=k_range,
-        asw_metric="precomputed",
-        method="single",
-    )
-
-    # Kmeans
-    kmeans_dict = utils.asw_optimization(
-        algorithm=utils.algorithm_kmeans,
-        data=X,
-        k_range=k_range,
-        asw_metric="euclidean",
-        n_init=10,
-    )
-
     # Kmedoids
     kmedoids_dict = utils.asw_optimization(
         algorithm=utils.algorithm_kmedoids,
         data=D,
-        k_range=k_range,
+        k_range=range(centers, centers + 1),
         asw_metric="precomputed",
+        fast = True
     )
 
-    weighted_str = f"${weighted_dict['best_score']:.3f}$ ({len(utils.Counter(weighted_dict['best_labels']))})"
-    single_str = f"${single_dict['best_score']:.3f}$ ({len(utils.Counter(single_dict['best_labels']))})"
-    kmeans_str = f"${kmeans_dict['best_score']:.3f}$ ({len(utils.Counter(kmeans_dict['best_labels']))})"
-    kmedoids_str = f"${kmedoids_dict['best_score']:.3f}$ ({len(utils.Counter(kmedoids_dict['best_labels']))})"
+    kmedoids_str = f"{kmedoids_dict['best_score']:.3f}"
 
     return (
         "-".join(str(x) for x in params),
-        "Euclidean",
-        weighted_str,
-        single_str,
-        kmeans_str,
+        str(int(centers)),
         kmedoids_str,
         ub_dict["ub"],
-        ub_dict["min"],
-        ub_dict["max"],
+        (ub_dict["ub"] - kmedoids_dict['best_score']) / ub_dict["ub"],
     )
 
 
@@ -107,15 +48,11 @@ def table(caseparams: list):
     """
 
     headers = [
-        "Dataset",
-        "Metric",
-        "Hierarchical weighted",
-        "Hierarchical single",
-        "KMeans",
-        "KMedoids",
-        "UB(D)",
-        "minUB(D)",
-        "maxUB(D)",
+         "Dataset",
+        "K",
+        "ASW",
+        "UB",
+        "wcre",
     ]
 
     lines = []
@@ -131,7 +68,7 @@ def table(caseparams: list):
 
         lines.append(
             " & ".join(
-                f"${cell:.3f}$" if type(cell) is not str else f"{cell}" for cell in row
+                f"{cell:.3f}" if type(cell) is not str else f"{cell}" for cell in row
             )
             + " \\\ "
         )
@@ -148,7 +85,6 @@ if __name__ == "__main__":
     case1params = (400, 64, 5, 6)
     case2params = (400, 64, 2, 2)
     case3params = (400, 128, 7, 3)
-    case4params = (1000, 161, 2, 13)
     case5params = (1000, 300, 5, 2)
     case6params = (10000, 32, 20, 2)
     case7params = (10000, 1024, 20, 4)
@@ -158,7 +94,6 @@ if __name__ == "__main__":
             case1params,
             case2params,
             case3params,
-            case4params,
             case5params,
             case6params,
             case7params,
