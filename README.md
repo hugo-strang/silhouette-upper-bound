@@ -6,9 +6,6 @@ An upper bound of the [Average Silhouette Width](https://en.wikipedia.org/wiki/S
 ![Silhouette Samples](figures/silhouette_samples.png)
 *Figure 1: Kmeans clustering applied to a synthetic dataset. Code available [`here`](./experiments/figure_silhouette_samples.py).*
 
-![ASW vs K](figures/asw_vs_k.png)
-*Figure 2: ASW for varying K. Code available [`here`](./experiments/figure_asw_vs_k.py).*
-
 ## Overview
 Evaluating clustering quality is a fundamental task in cluster analysis, and the
 [Average Silhouette Width](https://en.wikipedia.org/wiki/Silhouette_(clustering)) (ASW) is one of the most widely used metrics for this purpose. ASW scores range from $-1$ to $1$, where:
@@ -95,7 +92,7 @@ The code that generates the results below can be found in
 | 400-64-5-6 | 0.249 | 0.376 | 0.38 |
 | 400-64-2-2 | 0.673 | 0.673 | .00 |
 | 400-128-7-3 | 0.522 | 0.566 | 0.08 |
-| 1000-161-2-13 | 0.084 | 0.182 | 0.54 |
+| 10000-32-20-2 | 0.626 | 0.774 | 0.19 |
 
 Note that the upper bound confirms global optimality for KMeans on dataset 400-64-2-2.
 
