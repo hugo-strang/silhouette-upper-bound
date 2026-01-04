@@ -20,24 +20,24 @@ def _check_dissimilarity_matrix(D: np.ndarray, tol: float = 1e-15):
 
 
 @njit
-def _row_f(row: np.ndarray, kappa: int, n: int) -> float:
+def _row_f(row: np.ndarray, m: int, n: int) -> float:
 
-    y = np.sum(row[kappa - 1 :])
+    y = np.sum(row[m - 1 :])
     # Initialize q
-    if kappa == 1:
+    if m == 1:
         x = 0
         q = 1
     else:
-        x = np.sum(row[: kappa - 1])
-        q = (x / (kappa - 1)) / (y / (n - kappa))
+        x = np.sum(row[: m - 1])
+        q = (x / (m - 1)) / (y / (n - m))
 
-    for delta in range(kappa + 1, n - kappa + 1):
-        d_to_move = row[delta - 2]
+    for k in range(m + 1, n - m + 1):
+        d_to_move = row[k - 2]
 
         x += d_to_move
         y -= d_to_move
 
-        q_candidate = (x / (delta - 1)) / (y / (n - delta))
+        q_candidate = (x / (k - 1)) / (y / (n - k))
 
         if q_candidate < q:
             q = q_candidate
@@ -46,29 +46,29 @@ def _row_f(row: np.ndarray, kappa: int, n: int) -> float:
 
 
 @njit
-def _row_f_given_list(row: np.ndarray, kappa: Iterable, n: int) -> float:
+def _row_f_given_list(row: np.ndarray, m: Iterable, n: int) -> float:
 
-    kappa = list(set(kappa))
+    m = list(set(m))
 
-    kappa.sort()
+    m.sort()
 
-    kappa_init = kappa[0]
+    m_init = m[0]
 
-    y = np.sum(row[kappa_init - 1 :])
+    y = np.sum(row[m_init - 1 :])
     # Initialize q
-    if kappa_init == 1:
+    if m_init == 1:
         x = 0
         q = 1
     else:
-        x = np.sum(row[: kappa_init - 1])
-        q = (x / (kappa_init - 1)) / (y / (n - kappa_init))
+        x = np.sum(row[: m_init - 1])
+        q = (x / (m_init - 1)) / (y / (n - m_init))
 
-    for delta in kappa[1:]:
+    for k in m[1:]:
 
-        x = np.sum(row[: delta - 1])
-        y = np.sum(row[delta - 1 :])
+        x = np.sum(row[: k - 1])
+        y = np.sum(row[k - 1 :])
 
-        q_candidate = (x / (delta - 1)) / (y / (n - delta))
+        q_candidate = (x / (k - 1)) / (y / (n - k))
 
         if q_candidate < q:
             q = q_candidate

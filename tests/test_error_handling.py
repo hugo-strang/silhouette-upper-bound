@@ -17,7 +17,7 @@ def test_upper_bound_input():
         upper_bound(D=D)
 
     with pytest.raises(ValueError):
-        upper_bound(D=D, kappa=5)
+        upper_bound(D=D, m=5)
 
     # ---- Wrong dimensions ----
     A = np.random.rand(100, 101)
@@ -27,22 +27,22 @@ def test_upper_bound_input():
         upper_bound(D=A)
 
     with pytest.raises(ValueError):
-        upper_bound(D=A, kappa=5)
+        upper_bound(D=A, m=5)
 
-    # ---- Wrong kappa parameter ----
+    # ---- Wrong m parameter ----
     A = np.random.rand(100, 100)
     D = (A + A.T) / 2
     np.fill_diagonal(D, 0)
 
-    wrong_kappas = [0, -10, 1.5, 51, 98, 101, np.float16(3.0)]
+    wrong_ms = [0, -10, 1.5, 51, 98, 101, np.float16(3.0)]
 
-    for kappa in wrong_kappas:
+    for m in wrong_ms:
         # check that ValueError is raised
         with pytest.raises(ValueError):
-            upper_bound(D=D, kappa=kappa)
+            upper_bound(D=D, m=m)
 
-    # ---- Ok kappa parameter ----
-    ok_kappas = [
+    # ---- Ok m parameter ----
+    ok_ms = [
         1,
         25,
         50,
@@ -52,10 +52,10 @@ def test_upper_bound_input():
         np.int32(2),
         np.int16(10),
     ]
-    for kappa in ok_kappas:
+    for m in ok_ms:
         # Shouldn't raise error
         try:
-            upper_bound(D=D, kappa=kappa)
+            upper_bound(D=D, m=m)
         except Exception as e:
             pytest.fail(f"upper_bound raised {type(e)} unexpectedly!")
 

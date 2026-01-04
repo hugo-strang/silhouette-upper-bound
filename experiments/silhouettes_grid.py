@@ -38,7 +38,7 @@ for i, (dataset, n_clusters, metric) in enumerate(datasets):
 
     ub_samples = upper_bound_samples(D)
 
-    ub_samples_adjusted = upper_bound_samples(D, kappa=min_cluster_size)
+    ub_samples_adjusted = upper_bound_samples(D, m=min_cluster_size)
 
     data = utils.get_silhouette_plot_data(labels, scores, n_clusters, ub_samples)
 
@@ -58,7 +58,7 @@ for i, (dataset, n_clusters, metric) in enumerate(datasets):
             alpha=0.6,
         )
 
-        # Cluster Silhouette bounds (kappa = min cluster size)
+        # Cluster Silhouette bounds (m = min cluster size)
         ax.fill_betweenx(
             np.arange(data_adjusted[x]["y_lower"], data_adjusted[x]["y_upper"]),
             0,

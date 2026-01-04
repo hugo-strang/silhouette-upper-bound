@@ -1,6 +1,6 @@
 """
 In this example, we show how to lower the upper bound assuming the restriction
-that no cluster is smaller than kappa, where kappa > 1.
+that no cluster is smaller than m, where m > 1.
 """
 
 import numpy as np
@@ -28,10 +28,10 @@ def main():
 
     print(f"Silhouette (unrestricted) upper bound: {upper_bound(D):.3f}")
 
-    # Upper bound with kappa > 1
+    # Upper bound with m > 1
 
     print(
-        f"Silhouette upper bound (given that we don't allow cluster sizes smaller than {min_cluster_size}): {upper_bound(D, kappa=min_cluster_size):.3f}"
+        f"Silhouette upper bound (given that we don't allow cluster sizes smaller than {min_cluster_size}): {upper_bound(D, m=min_cluster_size):.3f}"
     )
 
 

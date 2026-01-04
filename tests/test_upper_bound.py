@@ -100,7 +100,7 @@ def _test_helper(
     assert np.all(0 <= ub_samples) and np.all(ub_samples <= 1)
     assert np.all(ub_samples - score_samples >= -1e-15)
 
-    # Upper bound with kappa > 1 (constraint on smallest cluster size)
+    # Upper bound with m > 1 (constraint on smallest cluster size)
     min_cluster_size = min(Counter(labels).values())
 
     assert min_cluster_size > 0
@@ -108,18 +108,18 @@ def _test_helper(
     if min_cluster_size > 1:
 
         # 3. Test restricted upper bound
-        ub_kappa = upper_bound(D, kappa=min_cluster_size)
+        ub_m = upper_bound(D, m=min_cluster_size)
 
-        assert 0 <= ub_kappa and ub_kappa <= 1
-        assert ub_kappa - score >= -1e-15
+        assert 0 <= ub_m and ub_m <= 1
+        assert ub_m - score >= -1e-15
 
         # 4. Test each sample for restricted upper bound
-        ub_kappa_samples = upper_bound_samples(D, kappa=min_cluster_size)
-        assert np.all(0 <= ub_kappa_samples) and np.all(ub_kappa_samples <= 1)
-        assert np.all(ub_kappa_samples - score_samples >= -1e-15)
+        ub_m_samples = upper_bound_samples(D, m=min_cluster_size)
+        assert np.all(0 <= ub_m_samples) and np.all(ub_m_samples <= 1)
+        assert np.all(ub_m_samples - score_samples >= -1e-15)
 
         # 5. Check that restricted bound is not greater than standard bounds
-        assert ub - ub_kappa >= -1e-15
+        assert ub - ub_m >= -1e-15
 
     # --- CSV reporting (only if CSV_REPORT=1) ---
     if CSV_REPORT:
