@@ -126,7 +126,6 @@ if __name__ == "__main__":
             case1params,
             case2params,
             case3params,
-            case4params,
             case5params,
             case6params,
         ]
