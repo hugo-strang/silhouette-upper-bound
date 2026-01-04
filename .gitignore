@@ -188,3 +188,5 @@ experiments/results/
 
 # npy
 *.npy
+
+experiments/runtime_results.csv
