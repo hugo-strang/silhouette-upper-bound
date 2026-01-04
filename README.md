@@ -24,32 +24,6 @@ To compute the upper bound, the method requires a dissimilarity matrix as input.
 
 You can find more details in this arXiv [preprint](https://arxiv.org/abs/2509.08625).
 
-## Use Cases
-
-The proposed data-dependent upper bound on the Average Silhouette Width (ASW) opens up opportunities for both research and industry applications.
-
-### Research (Academic Endeavors)
-
-**Confirming global optimality:** Certify that an empirically obtained clustering is within $\epsilon$ of the true ASW maximum.
-
-**Sharper comparisons across algorithms:** Interpret algorithm performance relative to dataset-specific ceilings, rather than the generic $[-1,1]$ scale.
-
-### Industry (Practical Applications)
-
-**Early stopping in optimization loops:** Halt ASW-based searches once solutions are provably close to optimal, saving time and resources.
-
-**Proxy for clusterability:** A low bound indicates limited potential for meaningful clusters, guiding analysts before heavy computation.
-
-**Outlier detection:** Pointwise upper bounds flag observations that cannot fit well into any cluster.
-
-**Constraint-aware clustering:** Incorporate application constraints (e.g. minimal cluster size) via restricted bounds.
-
-### Extension to other clustering quality measures
-In practical scenarios where clusters are imbalanced and small groups also matter, the so called *macro-averaged silhouette* (see [this article](https://arxiv.org/abs/2401.05831)) might be more favorable compared to the standard ASW. The macro-silhouette averages first at the cluster level and then across clusters. 
-
-In this project we implement an upper bound of this silhouette variant in a solution space that is constrained by fixed cluster sizes.
-
-
 ## Installation
 ```
 pip install silhouette-upper-bound
