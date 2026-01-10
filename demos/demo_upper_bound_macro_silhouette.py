@@ -38,13 +38,13 @@ def main():
     # Fixed cluster sizes that match our empirical results (this defines our solution space)
     cluster_sizes = Counter(labels).values()
 
-    # Macro-averaged silhouette score 
+    # Macro-averaged silhouette score
     score = _macro_averaged_silhouette(D, labels)
-    print(
-        f"KMeans macro silhouette: {score:.3f} | Cluster sizes: {cluster_sizes}"
-    )
+    print(f"KMeans macro silhouette: {score:.3f} | Cluster sizes: {cluster_sizes}")
 
-    print(f"Macro silhouette upper bound: {upper_bound_macro_silhouette(D, cluster_sizes):.3f}")
+    print(
+        f"Macro silhouette upper bound: {upper_bound_macro_silhouette(D, cluster_sizes):.3f}"
+    )
 
 
 if __name__ == "__main__":

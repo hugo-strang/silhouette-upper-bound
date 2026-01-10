@@ -23,7 +23,7 @@ def upper_bound_samples(D: np.ndarray, m: int | Iterable = 1) -> np.ndarray:
     References
     ----------
     .. [1] Silhouette (clustering). Wikipedia. https://en.wikipedia.org/wiki/Silhouette_(clustering)
-    .. [2] An upper bound of the silhouette validation metric for clustering. arXiv. https://arxiv.org/abs/2509.08625 
+    .. [2] An upper bound of the silhouette validation metric for clustering. arXiv. https://arxiv.org/abs/2509.08625
     """
 
     _check_dissimilarity_matrix(D=D)
@@ -84,7 +84,7 @@ def upper_bound(D: np.ndarray, m: int | Iterable = 1) -> float:
     References
     ----------
     .. [1] Silhouette (clustering). Wikipedia. https://en.wikipedia.org/wiki/Silhouette_(clustering)
-    .. [2] An upper bound of the silhouette validation metric for clustering. arXiv. https://arxiv.org/abs/2509.08625 
+    .. [2] An upper bound of the silhouette validation metric for clustering. arXiv. https://arxiv.org/abs/2509.08625
     """
 
     point_bounds = upper_bound_samples(D=D, m=m)
@@ -111,13 +111,13 @@ def upper_bound_macro_silhouette(D: np.ndarray, cluster_sizes: Iterable) -> floa
     Notes
     -----
     We emphasize that the upper bound is not guaranteed to be close to the true macro-silhouette-maximum.
-    Comparison with outputs from suitable clustering algorithms is advised. 
-    Moreover, the upper bound covers only clusterings with cluster sizes matching the given input. 
+    Comparison with outputs from suitable clustering algorithms is advised.
+    Moreover, the upper bound covers only clusterings with cluster sizes matching the given input.
 
     References
     ----------
     .. [1] Silhouette (clustering). Wikipedia. https://en.wikipedia.org/wiki/Silhouette_(clustering)
-    .. [2] An upper bound of the silhouette validation metric for clustering. arXiv. https://arxiv.org/abs/2509.08625 
+    .. [2] An upper bound of the silhouette validation metric for clustering. arXiv. https://arxiv.org/abs/2509.08625
     .. [3] Revisiting Silhouette Aggregation. arXiv. https://arxiv.org/abs/2401.05831
     """
 

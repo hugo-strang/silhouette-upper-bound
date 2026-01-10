@@ -47,7 +47,10 @@ logger = get_logger(__name__)
 # Algorithms
 # ==========
 
-def algorithm_kmedoids(data: np.ndarray, k: int, random_state: int = 42, fast = False) -> np.ndarray:
+
+def algorithm_kmedoids(
+    data: np.ndarray, k: int, random_state: int = 42, fast=False
+) -> np.ndarray:
 
     if fast:
         cluster_labels = (
@@ -249,6 +252,7 @@ def get_silhouette_plot_data(labels, scores, n_clusters, ub_samples):
 # ========
 # Macro silhouette
 # ========
+
 
 def _macro_averaged_silhouette(dissimilarity_matrix, labels):
 

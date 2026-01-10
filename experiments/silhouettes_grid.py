@@ -6,7 +6,11 @@ import seaborn as sns
 from matplotlib.ticker import MultipleLocator
 import utils
 from scipy.spatial.distance import squareform, pdist
-from silhouette_upper_bound import upper_bound, upper_bound_macro_silhouette, upper_bound_samples
+from silhouette_upper_bound import (
+    upper_bound,
+    upper_bound_macro_silhouette,
+    upper_bound_samples,
+)
 
 
 rows, cols = 2, 4
@@ -21,7 +25,7 @@ datasets = [
     ("optdigits", 10, "euclidean"),
     ("rna", 5, "euclidean"),
     ("wdbc", 2, "euclidean"),
-    ("wine", 3, "cityblock")
+    ("wine", 3, "cityblock"),
 ]
 
 for i, (dataset, n_clusters, metric) in enumerate(datasets):
@@ -30,9 +34,14 @@ for i, (dataset, n_clusters, metric) in enumerate(datasets):
     results = results[results["n_clusters"] == n_clusters]
     ax = axes[i]
 
-    labels, scores, min_cluster_size, cluster_sizes = results["cluster_labels"].values[0], results["silh_samples"].values[0], results["min_cluster_size"].values[0], results["cluster_sizes"].values[0]
+    labels, scores, min_cluster_size, cluster_sizes = (
+        results["cluster_labels"].values[0],
+        results["silh_samples"].values[0],
+        results["min_cluster_size"].values[0],
+        results["cluster_sizes"].values[0],
+    )
 
-    # load array of feature vectors and distance matrix 
+    # load array of feature vectors and distance matrix
     X = np.load(f"arrays/{dataset}.npy")
     D = squareform(pdist(X, metric=metric))
 
@@ -42,9 +51,15 @@ for i, (dataset, n_clusters, metric) in enumerate(datasets):
 
     data = utils.get_silhouette_plot_data(labels, scores, n_clusters, ub_samples)
 
-    data_adjusted = utils.get_silhouette_plot_data(labels, scores, n_clusters, ub_samples_adjusted)
+    data_adjusted = utils.get_silhouette_plot_data(
+        labels, scores, n_clusters, ub_samples_adjusted
+    )
 
-    score, ub, ub_adjusted = np.mean(scores), np.mean(ub_samples), np.mean(ub_samples_adjusted)
+    score, ub, ub_adjusted = (
+        np.mean(scores),
+        np.mean(ub_samples),
+        np.mean(ub_samples_adjusted),
+    )
 
     for x in data.keys():
 
@@ -80,9 +95,14 @@ for i, (dataset, n_clusters, metric) in enumerate(datasets):
 
         # Label cluster number
         ax.text(-0.05, data[x]["y_lower"] + 0.5 * data[x]["size_cluster_i"], str(x))
-    
+
     ax.axvline(x=ub, color="black", linestyle="--", label=rf"ASW upper bound global")
-    ax.axvline(x=ub_adjusted, color="black", linestyle="dotted", label=rf"ASW upper bound adjusted")
+    ax.axvline(
+        x=ub_adjusted,
+        color="black",
+        linestyle="dotted",
+        label=rf"ASW upper bound adjusted",
+    )
     ax.axvline(x=score, color="orange", linestyle="-", label="ASW")
     ax.set_title(dataset.replace("_", " ").title(), fontsize=15)
     ax.set_xlim([-0.1, 1.1])

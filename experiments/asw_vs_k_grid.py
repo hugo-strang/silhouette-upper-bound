@@ -18,20 +18,22 @@ datasets = [
     "optdigits",
     "rna",
     "wdbc",
-    "wine"
+    "wine",
 ]
 
 for i, dataset in enumerate(datasets):
     results = pd.read_pickle(f"results/{dataset}.pkl")
     ax = axes[i]
 
-    df = pd.DataFrame({
-        "K": results["n_clusters"],
-        "ASW": results["asw"],
-        "Macro Silhouette": results["macro_silhouette"],
-        "ASW upper bound adjusted": results["ub_asw_min_cluster_size"],
-        "Macro Silhouette upper bound ": results["ub_macro"]
-    })
+    df = pd.DataFrame(
+        {
+            "K": results["n_clusters"],
+            "ASW": results["asw"],
+            "Macro Silhouette": results["macro_silhouette"],
+            "ASW upper bound adjusted": results["ub_asw_min_cluster_size"],
+            "Macro Silhouette upper bound ": results["ub_macro"],
+        }
+    )
 
     # Melt for seaborn
     df_melted = df.melt(
@@ -40,10 +42,10 @@ for i, dataset in enumerate(datasets):
             "ASW",
             "Macro Silhouette",
             "ASW upper bound adjusted",
-            "Macro Silhouette upper bound "
+            "Macro Silhouette upper bound ",
         ],
         var_name="Method",
-        value_name="Value"
+        value_name="Value",
     )
 
     # Plot
@@ -56,7 +58,7 @@ for i, dataset in enumerate(datasets):
         markers=["o", "o", "X", "X"],
         dashes=["", "", (2, 2), (2, 2)],
         linewidth=1.5,
-        ax=ax
+        ax=ax,
     )
 
     # Reference line
@@ -65,7 +67,7 @@ for i, dataset in enumerate(datasets):
         color="black",
         linestyle="--",
         linewidth=1.5,
-        label="ASW upper bound global"
+        label="ASW upper bound global",
     )
 
     # Axes formatting

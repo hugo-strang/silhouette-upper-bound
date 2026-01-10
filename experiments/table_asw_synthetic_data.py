@@ -29,7 +29,7 @@ def table_row(params):
         data=D,
         k_range=range(centers, centers + 1),
         asw_metric="precomputed",
-        fast = True
+        fast=True,
     )
 
     kmedoids_str = f"{kmedoids_dict['best_score']:.3f}"
@@ -39,7 +39,7 @@ def table_row(params):
         str(int(centers)),
         kmedoids_str,
         ub_dict["ub"],
-        (ub_dict["ub"] - kmedoids_dict['best_score']) / ub_dict["ub"],
+        (ub_dict["ub"] - kmedoids_dict["best_score"]) / ub_dict["ub"],
     )
 
 
@@ -49,7 +49,7 @@ def table(caseparams: list):
     """
 
     headers = [
-         "Dataset",
+        "Dataset",
         "K",
         "ASW",
         "UB",
@@ -82,7 +82,7 @@ def table(caseparams: list):
 
 def cluster_centers(params):
     n_samples, n_features, centers, cluster_std = params
-    
+
     # Generate synthetic data
     X, y, cluster_centers = make_blobs(
         n_samples=n_samples,
@@ -90,7 +90,7 @@ def cluster_centers(params):
         centers=centers,
         cluster_std=cluster_std,
         random_state=0,
-        return_centers=True
+        return_centers=True,
     )
 
     # Compute all pairwise distances
@@ -108,7 +108,6 @@ def cluster_centers(params):
     print("\naverage inter-center distance:", f"{avg_dist:.1f}")
 
     return avg_dist
-
 
 
 if __name__ == "__main__":
