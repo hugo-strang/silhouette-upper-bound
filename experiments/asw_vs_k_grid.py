@@ -30,7 +30,7 @@ for i, dataset in enumerate(datasets):
             "K": results["n_clusters"],
             "ASW": results["asw"],
             "Macro Silhouette": results["macro_silhouette"],
-            "ASW upper bound adjusted": results["ub_asw_min_cluster_size"],
+            "ASW upper bound constrained": results["ub_asw_min_cluster_size"],
             "Macro Silhouette upper bound ": results["ub_macro"],
         }
     )
@@ -41,7 +41,7 @@ for i, dataset in enumerate(datasets):
         value_vars=[
             "ASW",
             "Macro Silhouette",
-            "ASW upper bound adjusted",
+            "ASW upper bound constrained",
             "Macro Silhouette upper bound ",
         ],
         var_name="Method",

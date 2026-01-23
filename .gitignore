@@ -190,3 +190,5 @@ experiments/results/
 *.npy
 
 experiments/runtime_results.csv
+experiments/runtime_results_distance_matrix.csv
+experiments/runtime_results_D_hat.csv

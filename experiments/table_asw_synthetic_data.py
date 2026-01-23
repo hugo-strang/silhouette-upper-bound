@@ -4,6 +4,7 @@ This file generates a table comparing empirical ASW values with the upper bound 
 
 from sklearn.datasets import make_blobs
 from scipy.spatial.distance import pdist
+from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 import utils
 
 
@@ -11,7 +12,7 @@ def table_row(params):
 
     n_samples, n_features, centers, cluster_std = params
     # Generate synthetic data
-    X, _ = make_blobs(
+    X, y = make_blobs(
         n_samples=n_samples,
         n_features=n_features,
         centers=centers,
@@ -31,6 +32,15 @@ def table_row(params):
         asw_metric="precomputed",
         fast=True,
     )
+
+    labels = kmedoids_dict["best_labels"]
+    # AMI and ARI
+    ari = adjusted_rand_score(labels, y)
+    ami = adjusted_mutual_info_score(labels, y)
+
+    print(f"\nAMI & ARI\n{n_samples}-{n_features}-{centers}-{cluster_std}")
+    print(f"Adjusted Rand Index vs. true labels: {ari:.3f}")
+    print(f"Adjusted Mutual Info vs. true labels: {ami:.3f}\n")
 
     kmedoids_str = f"{kmedoids_dict['best_score']:.3f}"
 
@@ -130,4 +140,4 @@ if __name__ == "__main__":
         ]
     )
 
-    cluster_centers(case6params)
+    # cluster_centers(case6params)
