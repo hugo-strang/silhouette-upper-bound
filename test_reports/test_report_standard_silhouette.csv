@@ -1,4 +1,4 @@
-method,metric,n_samples,n_features,centers,cluster_std,ASW,UB,UB-Score,Wors-case relative error
+method,metric,n_samples,n_features,centers,cluster_std,ASW,UB,UB-Score,Worst-case relative error
 kmeans,euclidean,100,10,3,1.0,0.77794,0.84812,0.07018,8%
 kmeans,euclidean,200,10,3,1.0,0.77502,0.86270,0.08768,10%
 kmeans,euclidean,300,10,3,1.0,0.77804,0.87212,0.09407,11%
