@@ -70,11 +70,11 @@ The code that generates the results below can be found in
 
 Note that the upper bound confirms global optimality for KMeans on dataset 400-64-2-2.
 
-More comprehensive results on synthetic datasets are available in [`results/`](./results/).
+More comprehensive results on synthetic datasets are available in [`test_reports/`](./test_reports/).
 
 ## Contribution
 
-Contributions are welcome! If you have suggestions for improvements, bug reports, or new features, feel free to open an issue or submit a pull request.
+Contributions are very welcome! If you have suggestions for improvements, bug reports, or new features, feel free to open an issue or submit a pull request.
 
 To contribute:
 

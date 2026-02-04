@@ -47,18 +47,18 @@ for i, (dataset, n_clusters, metric) in enumerate(datasets):
 
     ub_samples = upper_bound_samples(D)
 
-    ub_samples_adjusted = upper_bound_samples(D, m=min_cluster_size)
+    ub_samples_constrained = upper_bound_samples(D, m=min_cluster_size)
 
     data = utils.get_silhouette_plot_data(labels, scores, n_clusters, ub_samples)
 
-    data_adjusted = utils.get_silhouette_plot_data(
-        labels, scores, n_clusters, ub_samples_adjusted
+    data_constrained = utils.get_silhouette_plot_data(
+        labels, scores, n_clusters, ub_samples_constrained
     )
 
-    score, ub, ub_adjusted = (
+    score, ub, ub_constrained = (
         np.mean(scores),
         np.mean(ub_samples),
-        np.mean(ub_samples_adjusted),
+        np.mean(ub_samples_constrained),
     )
 
     for x in data.keys():
@@ -75,11 +75,11 @@ for i, (dataset, n_clusters, metric) in enumerate(datasets):
 
         # Cluster Silhouette bounds (m = min cluster size)
         ax.fill_betweenx(
-            np.arange(data_adjusted[x]["y_lower"], data_adjusted[x]["y_upper"]),
+            np.arange(data_constrained[x]["y_lower"], data_constrained[x]["y_upper"]),
             0,
-            data_adjusted[x]["sorted_ub_values"],
-            facecolor=data_adjusted[x]["color"],
-            edgecolor=data_adjusted[x]["color"],
+            data_constrained[x]["sorted_ub_values"],
+            facecolor=data_constrained[x]["color"],
+            edgecolor=data_constrained[x]["color"],
             alpha=1.0,
         )
 
@@ -98,10 +98,10 @@ for i, (dataset, n_clusters, metric) in enumerate(datasets):
 
     ax.axvline(x=ub, color="black", linestyle="--", label=rf"ASW upper bound global")
     ax.axvline(
-        x=ub_adjusted,
+        x=ub_constrained,
         color="black",
         linestyle="dotted",
-        label=rf"ASW upper bound adjusted",
+        label=rf"ASW upper bound constrained",
     )
     ax.axvline(x=score, color="orange", linestyle="-", label="ASW")
     ax.set_title(dataset.replace("_", " ").title(), fontsize=15)

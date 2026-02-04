@@ -12,7 +12,7 @@ import csv
 
 # Only write CSV if explicitly enabled
 CSV_REPORT = os.getenv("CSV_REPORT", "0") == "1"
-REPORT_FILE = "results/test_report_standard_silhouette.csv"
+REPORT_FILE = "test_reports/test_report_standard_silhouette.csv"
 
 # If enabled, prepare the file with a header
 if CSV_REPORT:
@@ -29,7 +29,7 @@ if CSV_REPORT:
                 "ASW",
                 "UB",
                 "UB-Score",
-                "Wors-case relative error",
+                "Worst-case relative error",
             ]
         )
 

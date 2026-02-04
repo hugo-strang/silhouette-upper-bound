@@ -3,7 +3,7 @@ import pytest
 from silhouette_upper_bound import upper_bound_macro_silhouette
 from sklearn.cluster import KMeans
 from sklearn.datasets import make_blobs
-from sklearn.metrics import silhouette_score, silhouette_samples, pairwise_distances
+from sklearn.metrics import silhouette_samples, pairwise_distances
 from collections import Counter
 import kmedoids
 import os
@@ -12,7 +12,7 @@ import csv
 
 # Only write CSV if explicitly enabled
 CSV_REPORT = os.getenv("CSV_REPORT", "0") == "1"
-REPORT_FILE = "results/test_report_macro_silhouette.csv"
+REPORT_FILE = "test_reports/test_report_macro_silhouette.csv"
 
 # If enabled, prepare the file with a header
 if CSV_REPORT:
@@ -29,7 +29,7 @@ if CSV_REPORT:
                 "Macro Silhouette",
                 "UB",
                 "UB-Score",
-                "Wors-case relative error",
+                "Worst-case relative error",
                 "cluster sizes",
             ]
         )
