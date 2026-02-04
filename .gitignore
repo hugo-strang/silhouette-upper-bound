@@ -180,6 +180,7 @@ experiments/**/*.names
 experiments/**/*.tes 
 experiments/**/*.tra 
 experiments/**/*.txt 
+experiments/**/*.json
 
 # pdf files 
 *.pdf
