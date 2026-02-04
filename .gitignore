@@ -174,8 +174,12 @@ cython_debug/
 .pypirc
 
 # experiment folders
-experiments/data/
-experiments/results/
+experiments/**/*.csv
+experiments/**/*.pkl
+experiments/**/*.names
+experiments/**/*.tes 
+experiments/**/*.tra 
+experiments/**/*.txt 
 
 # pdf files 
 *.pdf
@@ -188,7 +192,3 @@ experiments/results/
 
 # npy
 *.npy
-
-experiments/runtime_results.csv
-experiments/runtime_results_distance_matrix.csv
-experiments/runtime_results_D_hat.csv
