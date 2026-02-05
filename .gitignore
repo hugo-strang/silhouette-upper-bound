@@ -181,6 +181,7 @@ experiments/**/*.tes
 experiments/**/*.tra 
 experiments/**/*.txt 
 experiments/**/*.json
+experiments/**/*.png
 
 # pdf files 
 *.pdf
