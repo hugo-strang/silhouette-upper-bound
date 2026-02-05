@@ -67,23 +67,3 @@ def get_silhouette_plot_data(labels, scores, n_clusters, ub_samples):
 
     return data
 
-
-# ========
-# Macro silhouette
-# ========
-
-
-def macro_averaged_silhouette(dissimilarity_matrix, labels):
-
-    silhouette_scores = silhouette_samples(
-        X=dissimilarity_matrix, labels=labels, metric="precomputed"
-    )
-
-    mac_silh = []
-
-    for cluster_id in np.unique(labels):
-        scores = silhouette_scores[labels == cluster_id]
-
-        mac_silh.append(np.mean(scores))
-
-    return np.mean(mac_silh)
