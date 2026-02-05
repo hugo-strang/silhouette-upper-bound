@@ -1,12 +1,6 @@
-from sklearn.metrics import silhouette_samples
 import numpy as np
 import kmedoids
 import matplotlib.pyplot as plt
-
-
-# ==========
-# Algorithm
-# ==========
 
 
 def algorithm_kmedoids(
@@ -23,11 +17,6 @@ def algorithm_kmedoids(
         )
 
     return cluster_labels
-
-
-# ========
-# Plotting
-# ========
 
 
 def get_silhouette_plot_data(labels, scores, n_clusters, ub_samples):
