@@ -35,7 +35,7 @@ if CSV_REPORT:
         )
 
 
-def _macro_averaged_silhouette(dissimilarity_matrix, labels):
+def macro_averaged_silhouette(dissimilarity_matrix, labels):
 
     silhouette_scores = silhouette_samples(
         X=dissimilarity_matrix, labels=labels, metric="precomputed"
@@ -69,7 +69,7 @@ def test_blobs_kmeans(n_samples, n_features, centers, cluster_std):
     # KMeans clustering
     model = KMeans(n_clusters=centers, random_state=42, n_init="auto")
     labels = model.fit_predict(X)
-    score = _macro_averaged_silhouette(dissimilarity_matrix=D, labels=labels)
+    score = macro_averaged_silhouette(dissimilarity_matrix=D, labels=labels)
 
     cluster_sizes = list(Counter(labels).values())
 
@@ -118,7 +118,7 @@ def test_blobs_kmedoids(metric, n_samples, n_features, centers, cluster_std):
 
     # KMedoids clustering
     labels = kmedoids.fastmsc(diss=D, medoids=centers, random_state=42).labels + 1
-    score = _macro_averaged_silhouette(dissimilarity_matrix=D, labels=labels)
+    score = macro_averaged_silhouette(dissimilarity_matrix=D, labels=labels)
 
     cluster_sizes = list(Counter(labels).values())
 

@@ -66,4 +66,3 @@ def get_silhouette_plot_data(labels, scores, n_clusters, ub_samples):
         y_lower = y_upper + 10
 
     return data
-
