@@ -215,11 +215,14 @@ def data_to_distance_matrix(data, metric, TOL=1e-10):
 
 
 def get_silhouette_plot_data(labels, scores, n_clusters, ub_samples):
+    """
+    Cluster labels should be 1-indexed, i.e. 1, 2, 3, ... n_clusters
+    """
 
     data = {i: {} for i in range(1, n_clusters + 1)}
 
     y_lower = 10
-    for i in data.keys():
+    for i in sorted(list(data.keys())):
 
         indices = np.where(labels == i)[0]
         cluster_silhouettes = scores[indices]
