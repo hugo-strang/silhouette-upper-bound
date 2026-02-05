@@ -17,6 +17,11 @@ Parameters = namedtuple(
 
 if __name__ == "__main__":
 
+    # generate figures folder
+    figures_dir = Path(__file__).parent / "figures"
+    figures_dir.mkdir(parents=True, exist_ok=True)
+
+    # generate datasets folder
     datasets_dir = Path(__file__).parent / "datasets"
     datasets_dir.mkdir(parents=True, exist_ok=True)
 
