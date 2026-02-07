@@ -1,6 +1,6 @@
 # Synthetic Datasets
 
-This directory contains the synthetic datasets used for experiments. These datasets are generated programmatically to ensure research reproducibility and to provide a controlled environment for testing.
+This directory contains the synthetic datasets used for experiments. These datasets are generated with a fixed seed to ensure research reproducibility.
 
 ## Setup & Generation
 

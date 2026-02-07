@@ -34,6 +34,7 @@ if __name__ == "__main__":
         Parameters(n_samples=10000, n_features=1024, centers=20, cluster_std=4),
     ]
 
+    # fixed seed 
     random_state = 0
 
     for parameters in make_blobs_parameters:
