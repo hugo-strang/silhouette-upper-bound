@@ -4,7 +4,7 @@
 An upper bound of the [Average Silhouette Width](https://en.wikipedia.org/wiki/Silhouette_(clustering)).
 
 ![Silhouette Samples](figures/silhouette_samples.png)
-*Figure 1: Kmeans clustering applied to a synthetic dataset. Code available [`here`](./experiments/synthetic_datasets/figures/figure_silhouette_samples.py).*
+*Figure 1: Kmeans clustering applied to a synthetic dataset. Code available [`here`](./experiments/synthetic_datasets/figure_silhouette_samples.py).*
 
 ## Overview
 Evaluating clustering quality is a fundamental task in cluster analysis, and the
