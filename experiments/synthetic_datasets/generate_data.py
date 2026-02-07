@@ -22,8 +22,8 @@ if __name__ == "__main__":
     figures_dir.mkdir(parents=True, exist_ok=True)
 
     # generate results folder
-    figures_dir = Path(__file__).parent / "results"
-    figures_dir.mkdir(parents=True, exist_ok=True)
+    results_dir = Path(__file__).parent / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
 
     # generate datasets folder
     datasets_dir = Path(__file__).parent / "datasets"
