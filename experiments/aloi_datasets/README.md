@@ -1,6 +1,6 @@
-# UCI Datasets
+# ALOI Datasets
 
-This directory contains experiments on data dervied from the ALOI dataset. These datasets are publicly available and can be downloaded from https://zenodo.org/records/6355684. 
+This directory contains experiments on data derived from the ALOI dataset. These datasets are publicly available and can be downloaded from https://zenodo.org/records/6355684. 
 
 ## Setup & Generation
 
