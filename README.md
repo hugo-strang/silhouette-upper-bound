@@ -4,7 +4,7 @@
 An upper bound of the [Average Silhouette Width](https://en.wikipedia.org/wiki/Silhouette_(clustering)).
 
 ![Silhouette Samples](figures/silhouette_samples.png)
-*Figure 1: Kmeans clustering applied to a synthetic dataset. Code available [`here`](./experiments/figure_silhouette_samples.py).*
+*Figure 1: Kmeans clustering applied to a synthetic dataset. Code available [`here`](./experiments/synthetic_datasets/figure_silhouette_samples.py).*
 
 ## Overview
 Evaluating clustering quality is a fundamental task in cluster analysis, and the
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 We evaluate the performance of the upper bound using synthetic datasets generated with `scikit-learn`’s `make_blobs()` [function](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_blobs.html). Each dataset is identified by a label of the form `n_samples`-`n_features`-`centers`-`cluster_std`, which corresponds to the parameters used in the data generation.
 
 The code that generates the results below can be found in 
-[`experiments/`](./experiments/table_asw_synthetic_data.py).
+[`experiments/`](./experiments/synthetic_datasets/table_asw_vs_ub.py).
 
 | Dataset | KMeans ASW | ASW upper bound | Worst-case relative error |
 | --- | --- | --- | --- |

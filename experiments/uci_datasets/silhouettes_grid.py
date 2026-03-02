@@ -1,17 +1,21 @@
-from collections import Counter
+"""
+This file generates a figure that compares individual silhouette widths with pointwise upper bounds.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
-from matplotlib.ticker import MultipleLocator
-import utils
 from scipy.spatial.distance import squareform, pdist
-from silhouette_upper_bound import (
-    upper_bound,
-    upper_bound_macro_silhouette,
-    upper_bound_samples,
-)
+from silhouette_upper_bound import upper_bound_samples
+from pathlib import Path
+import sys
 
+parent_dir = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(0, parent_dir)
+import utils
+
+
+base_path = Path.cwd()
 
 rows, cols = 2, 4
 fig, axes = plt.subplots(rows, cols, figsize=(16, 10))
@@ -30,7 +34,7 @@ datasets = [
 
 for i, (dataset, n_clusters, metric) in enumerate(datasets):
 
-    results = pd.read_pickle(f"results/{dataset}.pkl")
+    results = pd.read_pickle(f"{base_path}/results/{dataset}.pkl")
     results = results[results["n_clusters"] == n_clusters]
     ax = axes[i]
 
@@ -42,7 +46,7 @@ for i, (dataset, n_clusters, metric) in enumerate(datasets):
     )
 
     # load array of feature vectors and distance matrix
-    X = np.load(f"arrays/{dataset}.npy")
+    X = np.load(f"{base_path}/arrays/{dataset}.npy")
     D = squareform(pdist(X, metric=metric))
 
     ub_samples = upper_bound_samples(D)
@@ -110,6 +114,6 @@ for i, (dataset, n_clusters, metric) in enumerate(datasets):
     ax.legend(fontsize=8, loc="upper right")
 
 plt.tight_layout()
-plt.savefig("silhouettes_grid.pdf", bbox_inches="tight")
+plt.savefig(f"{base_path}/figures/silhouettes_grid.pdf", bbox_inches="tight")
 print("Silhouette grid plot generated!")
 plt.close()

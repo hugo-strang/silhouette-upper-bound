@@ -10,7 +10,7 @@ from sklearn.metrics import silhouette_samples, pairwise_distances
 from collections import Counter
 
 
-def _macro_averaged_silhouette(dissimilarity_matrix, labels):
+def macro_averaged_silhouette(dissimilarity_matrix, labels):
 
     silhouette_scores = silhouette_samples(
         X=dissimilarity_matrix, labels=labels, metric="precomputed"
@@ -39,7 +39,7 @@ def main():
     cluster_sizes = Counter(labels).values()
 
     # Macro-averaged silhouette score
-    score = _macro_averaged_silhouette(D, labels)
+    score = macro_averaged_silhouette(D, labels)
     print(f"KMeans macro silhouette: {score:.3f} | Cluster sizes: {cluster_sizes}")
 
     print(

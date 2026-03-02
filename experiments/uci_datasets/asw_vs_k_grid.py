@@ -1,10 +1,14 @@
-from collections import Counter
-import numpy as np
+"""
+This file generates a figure that compares empirical clustering results with ASW upper bounds.
+"""
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from pathlib import Path
 from matplotlib.ticker import MultipleLocator
 
+base_path = Path.cwd()
 
 rows, cols = 2, 4
 fig, axes = plt.subplots(rows, cols, figsize=(16, 10))
@@ -22,7 +26,7 @@ datasets = [
 ]
 
 for i, dataset in enumerate(datasets):
-    results = pd.read_pickle(f"results/{dataset}.pkl")
+    results = pd.read_pickle(f"{base_path}/results/{dataset}.pkl")
     ax = axes[i]
 
     df = pd.DataFrame(
@@ -81,6 +85,6 @@ for i, dataset in enumerate(datasets):
     ax.grid(True, which="major", linestyle="--", linewidth=0.7, alpha=0.6)
 
 plt.tight_layout()
-plt.savefig("asw_vs_k_grid.pdf", bbox_inches="tight")
+plt.savefig(f"{base_path}/figures/asw_vs_k_grid.pdf", bbox_inches="tight")
 print("✅ Silhouette grid plot generated and saved as asw_vs_k_grid.pdf!")
 plt.close()
