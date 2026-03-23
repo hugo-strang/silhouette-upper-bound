@@ -83,3 +83,9 @@ To contribute:
 3. Submit a pull request.
 
 Thank you for helping improve this project!
+
+## References
+
+[1] Hugo Sträng and Tai Dinh. **An upper bound on the silhouette evaluation metric for clustering**. *Pattern Recognition*, 178:113402, 2026. https://doi.org/10.1016/j.patcog.2026.113402
+
+[2] Hugo Sträng and Tai Dinh. **Silhouette-upper-bound: An upper bound of the silhouette validation metric for clustering**. *Software Impacts*, 100835, 2026. https://doi.org/10.1016/j.simpa.2026.100835
